@@ -4,7 +4,7 @@ import './App.css';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { PlayCircle, PauseCircle, StopCircle } from '@mui/icons-material';
+import { PlayCircle, PauseCircle, StopCircle, ReplayCircleFilled } from '@mui/icons-material';
 import { InputSlider } from './Input';
 
 import * as Tone from 'tone';
@@ -59,7 +59,11 @@ function Cell({active, playing, onClick}: {active: boolean, playing: boolean, on
 }
 
 function App() {
-  const [grid, setGrid] = useState(Array.from({ length: SIZE }).map(() => Array.from({ length: SIZE }).map(() => false)));
+  const defaultGrid = Array.from({ length: SIZE }).map(() => Array.from({ length: SIZE }).map(() => false));
+  defaultGrid.forEach((row, i) => {
+    row[i] = true;
+  });
+  const [grid, setGrid] = useState(defaultGrid);
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
   const [speed, setSpeed] = useState(1);
@@ -170,6 +174,12 @@ function App() {
     <Button variant='outlined' onClick={() => setStatus('play')}><PlayCircle /></Button>
   );
 
+  const stopButton = status === 'play' ? (
+    <Button variant='outlined' onClick={() => setStatus('stop')}><StopCircle /></Button>
+  ) : (
+    <Button variant='outlined' onClick={() => setStatus('stop')}><ReplayCircleFilled /></Button>
+  );
+
   return (
     <ThemeProvider theme={theme}>
     <CssBaseline />
@@ -189,7 +199,7 @@ function App() {
         <Button variant='outlined' onClick={fillGrid}>Fill</Button>
         <Button variant='outlined' onClick={randomizeGrid}>Randomize</Button>
         {playPauseButton}
-        <Button variant='outlined' onClick={() => setStatus('stop')}><StopCircle /></Button>
+        {stopButton}
         <div style={{width: '300px'}}>
           <InputSlider
             name='SPEED'

@@ -1,8 +1,11 @@
-/* CSS for a 30x30 table with square cells having borders */
+.App {
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+}
+
 table {
   border-collapse: collapse;
-  /* width: 100%; */
-  /* height: 70%; */
 }
 
 td {

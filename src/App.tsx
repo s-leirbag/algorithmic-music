@@ -9,7 +9,7 @@ import { InputSlider } from './Input';
 
 import * as Tone from 'tone';
 
-const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+const synth = new Tone.PolySynth(Tone.FMSynth).toDestination();
 
 const theme = createTheme({
   palette: {
@@ -77,7 +77,7 @@ function App() {
       }
     });
     const now = Tone.now()
-    synth.triggerAttackRelease(notes, 0.1, now);
+    synth.triggerAttackRelease(notes, DEFAULT_INTERVAL / speed / 1000, now);
   }, [colToPlay, status]);
 
   useEffect(() => {
@@ -195,7 +195,7 @@ function App() {
             name='SPEED'
             value={speed}
             step={0.25}
-            min={0}
+            min={0.25}
             max={10}
             onChange={(n: SetStateAction<number>) => setSpeed(n)}
           />

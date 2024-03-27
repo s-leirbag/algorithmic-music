@@ -1,7 +1,50 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, SetStateAction } from 'react';
 import './App.css';
 
-const SIZE = 30;
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { PlayCircle, PauseCircle, StopCircle } from '@mui/icons-material';
+import { InputSlider } from './Input';
+import { Typography } from '@mui/material';
+
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#79F2E6',
+      light: '#9c9c9c',
+      dark: '#04588C',
+    },
+    text: {
+      primary: '#79F2E6',
+      secondary: '#9c9c9c',
+    },
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        td {
+          width: 4vh;
+          height: 4vh;
+        }
+      `,
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          border: '2px solid #63c4ba',
+          "&:hover": {
+            border: "2px solid #79F2E6", // Matches the default border style
+          },
+        },
+      },
+    },
+  },
+});
+
+
+const SIZE = 12;
 
 function Cell({active, onClick}: {active: boolean, onClick: () => void}) {
   return (
@@ -13,6 +56,9 @@ function Cell({active, onClick}: {active: boolean, onClick: () => void}) {
 
 function App() {
   const [grid, setGrid] = useState(Array.from({ length: SIZE }).map(() => Array.from({ length: SIZE }).map(() => false)));
+  // status play, pause, stop
+  const [status, setStatus] = useState('stop');
+  const [speed, setSpeed] = useState(1);
 
   const getNextGrid = useCallback(() => {
     const getNeighborCount = (i: number, j: number) => {
@@ -44,11 +90,37 @@ function App() {
   }, [grid]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setGrid(getNextGrid());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [getNextGrid]);
+    let interval: NodeJS.Timeout;
+    if (status === 'play') {
+      interval = setInterval(() => {
+        setGrid(getNextGrid());
+      }, 1000 / speed);
+    }
+    return () => {
+      clearInterval(interval);
+    }
+  }, [status, getNextGrid, speed]);
+
+  const clearGrid = () => {
+    const newGrid = grid.map((row) =>
+      row.map(() => false)
+    );
+    setGrid(newGrid);
+  }
+
+  const fillGrid = () => {
+    const newGrid = grid.map((row) =>
+      row.map(() => true)
+    );
+    setGrid(newGrid);
+  }
+
+  const randomizeGrid = () => {
+    const newGrid = grid.map((row) =>
+      row.map(() => Math.random() < 0.5)
+    );
+    setGrid(newGrid);
+  }
 
   const handleToggle = (i: number, j: number) => {
     const newGrid = grid.map((row, rowIndex) =>
@@ -62,20 +134,44 @@ function App() {
     setGrid(newGrid);
   }
 
+  const playPauseButton = status === 'play' ? (
+    <Button variant='outlined' onClick={() => setStatus('pause')}><PauseCircle /></Button>
+  ) : (
+    <Button variant='outlined' onClick={() => setStatus('play')}><PlayCircle /></Button>
+  );
+
   return (
-    <div className="App">
-      <table>
-        <tbody>
-          {Array.from({ length: SIZE }).map((_, i) => (
-            <tr key={i}>
-              {Array.from({ length: SIZE }).map((_, j) => (
-                <Cell key={j} active={grid[i][j]} onClick={() => {handleToggle(i, j)}} />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <ThemeProvider theme={theme}>
+    <CssBaseline />
+      <div className="App">
+        <table>
+          <tbody>
+            {Array.from({ length: SIZE }).map((_, i) => (
+              <tr key={i}>
+                {Array.from({ length: SIZE }).map((_, j) => (
+                  <Cell key={j} active={grid[i][j]} onClick={() => {handleToggle(i, j)}} />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Button variant='outlined' onClick={clearGrid}>Clear</Button>
+        <Button variant='outlined' onClick={fillGrid}>Fill</Button>
+        <Button variant='outlined' onClick={randomizeGrid}>Randomize</Button>
+        {playPauseButton}
+        <Button variant='outlined' onClick={() => setStatus('stop')}><StopCircle /></Button>
+        <div style={{width: '300px'}}>
+          <InputSlider
+            name='SPEED'
+            value={speed}
+            step={0.25}
+            min={0}
+            max={10}
+            onChange={(n: SetStateAction<number>) => setSpeed(n)}
+          />
+        </div>
+      </div>
+    </ThemeProvider>
   );
 }
 

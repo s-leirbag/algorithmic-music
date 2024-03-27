@@ -20,7 +20,10 @@ table {
   background-color: #532473;
 }
 
-
+.cell.playing {
+  border: 1px solid #79F2E6;
+  /* background-color: #532473; */
+}
 
 .light-pink {
   color: #F06BF2;

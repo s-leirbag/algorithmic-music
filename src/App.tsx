@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, SetStateAction } from 'react';
+import { useEffect, useState, SetStateAction } from 'react';
 import './App.css';
 
 import Button from '@mui/material/Button';
@@ -6,7 +6,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { PlayCircle, PauseCircle, StopCircle } from '@mui/icons-material';
 import { InputSlider } from './Input';
-import { Typography } from '@mui/material';
+
+import * as Tone from 'tone';
+
+const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
 const theme = createTheme({
   palette: {
@@ -44,12 +47,13 @@ const theme = createTheme({
 });
 
 
-const SIZE = 12;
+const SIZE = 7;
+const DEFAULT_INTERVAL = 1000;
 
-function Cell({active, onClick}: {active: boolean, onClick: () => void}) {
+function Cell({active, playing, onClick}: {active: boolean, playing: boolean, onClick: () => void}) {
   return (
     <td onClick={(e) => onClick()}>
-      <div className={`cell ${active ? 'active' : ''}`}/>
+      <div className={`cell ${active ? 'active' : ''} ${playing ? 'playing' : ''}`}/>
     </td>
   );
 }
@@ -59,9 +63,25 @@ function App() {
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
   const [speed, setSpeed] = useState(1);
+  const [colToPlay, setColToPlay] = useState(0);
 
-  const getNextGrid = useCallback(() => {
-    const getNeighborCount = (i: number, j: number) => {
+  useEffect(() => {
+    if (status !== 'play') {
+      return;
+    }
+
+    const notes: string[] = [];
+    grid.forEach((row, i) => {
+      if (row[colToPlay]) {
+        notes.push(['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'][i]);
+      }
+    });
+    const now = Tone.now()
+    synth.triggerAttackRelease(notes, 0.1, now);
+  }, [colToPlay, status]);
+
+  useEffect(() => {
+    const getNeighborCount = (i: number, j: number, grid: boolean[][]) => {
       let count = 0;
       for (let x = i - 1; x <= i + 1; x++) {
         for (let y = j - 1; y <= j + 1; y++) {
@@ -73,33 +93,43 @@ function App() {
         }
       }
       return count;
-    }
+    };
   
-    const getNextCellState = (i: number, j: number) => {
-      const count = getNeighborCount(i, j);
+    const getNextCellState = (i: number, j: number, grid: boolean[][]) => {
+      const count = getNeighborCount(i, j, grid);
       if (grid[i][j]) {
         return count === 2 || count === 3;
       } else {
         return count === 3;
       }
-    }
+    };
 
-    return grid.map((row, rowIndex) =>
-      row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex))
-    );
-  }, [grid]);
-
-  useEffect(() => {
+    const getNextGrid = (grid: boolean[][]) => {
+      return grid.map((row, rowIndex) =>
+        row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
+      );
+    };
+    
     let interval: NodeJS.Timeout;
     if (status === 'play') {
       interval = setInterval(() => {
-        setGrid(getNextGrid());
-      }, 1000 / speed);
+        setColToPlay((c) => {
+          let newC = (c + 1) % SIZE;
+          if (newC === SIZE - 1) {
+            setTimeout(() => setGrid((g) => getNextGrid(g)), DEFAULT_INTERVAL / speed / 2);
+          }
+          return newC;
+        });
+      }, DEFAULT_INTERVAL / speed);
     }
+    else if (status === 'stop') {
+      setColToPlay(0);
+    }
+
     return () => {
       clearInterval(interval);
     }
-  }, [status, getNextGrid, speed]);
+  }, [status, speed]);
 
   const clearGrid = () => {
     const newGrid = grid.map((row) =>
@@ -149,7 +179,7 @@ function App() {
             {Array.from({ length: SIZE }).map((_, i) => (
               <tr key={i}>
                 {Array.from({ length: SIZE }).map((_, j) => (
-                  <Cell key={j} active={grid[i][j]} onClick={() => {handleToggle(i, j)}} />
+                  <Cell key={j} active={grid[i][j]} playing={j === colToPlay} onClick={() => {handleToggle(i, j)}} />
                 ))}
               </tr>
             ))}

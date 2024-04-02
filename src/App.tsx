@@ -3,6 +3,9 @@ import './App.css';
 
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
+import Link from '@mui/material/Link'
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { PlayCircle, PauseCircle, StopCircle, ReplayCircleFilled } from '@mui/icons-material';
 import { InputSlider } from './Input';
@@ -209,6 +212,18 @@ function App() {
     <ThemeProvider theme={theme}>
     <CssBaseline />
       <div className="App">
+        <Paper sx={{ m: 2, p: 2, display: 'flex', alignItems: 'end' }} elevation={4}>
+          <Typography variant='h3' component='h4' sx={{ mr: 4 }} >Musical Game of Life</Typography>
+          <Typography variant='body1' component='p' sx={{ mb: 1, mr: 1 }}>
+            Make some tunes! -Gabriel Shiu
+          </Typography>
+          {/* <Typography variant='body1' component='p' sx={{ mb: 1 }}>
+            HU 3900 Creating Algorithmic Music Capstone
+          </Typography> */}
+          <Typography variant='body1' component='p' sx={{ mb: 1, ml: 'auto', mr: 2 }}>
+            GitHub repo: <Link href='https://github.com/s-leirbag/algorithmic-music/' target="_blank" rel="noopener">click</Link>
+          </Typography>
+        </Paper>
         <table>
           <tbody>
             {Array.from({ length: SIZE }).map((_, i) => (

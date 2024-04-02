@@ -9,7 +9,7 @@ import { InputSlider } from './Input';
 
 import * as Tone from 'tone';
 
-const synth = new Tone.PolySynth(Tone.FMSynth).toDestination();
+const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
 const theme = createTheme({
   palette: {
@@ -58,6 +58,11 @@ function Cell({active, playing, onClick}: {active: boolean, playing: boolean, on
   );
 }
 
+type Note = {
+  note: string;
+  time: number;
+}
+
 function App() {
   const defaultGrid = Array.from({ length: SIZE }).map(() => Array.from({ length: SIZE }).map(() => false));
   defaultGrid.forEach((row, i) => {
@@ -68,20 +73,36 @@ function App() {
   const [status, setStatus] = useState('stop');
   const [speed, setSpeed] = useState(1);
   const [colToPlay, setColToPlay] = useState(0);
+  const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
+
+  useEffect(() => {
+    const newNotesToPlay: Note[][] = Array.from({ length: SIZE }).map(() => []);
+    const now = Tone.now()
+    const SCALE = ['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
+    grid.forEach((row, i) => {
+      row.forEach((_, j) => {
+        if (!grid[i][j]) {
+          return;
+        }
+        const secInterval = DEFAULT_INTERVAL / speed / 1000;
+        newNotesToPlay[j].push({
+          note: SCALE[i],
+          time: now + secInterval * j
+        });
+      });
+    });
+
+    setNotesToPlay(newNotesToPlay);
+  }, [grid, speed]);
 
   useEffect(() => {
     if (status !== 'play') {
       return;
     }
 
-    const notes: string[] = [];
-    grid.forEach((row, i) => {
-      if (row[colToPlay]) {
-        notes.push(['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'][i]);
-      }
+    notesToPlay[colToPlay].forEach((note) => {
+      synth.triggerAttackRelease(note.note, '8n');
     });
-    const now = Tone.now()
-    synth.triggerAttackRelease(notes, DEFAULT_INTERVAL / speed / 1000, now);
   }, [colToPlay, status]);
 
   useEffect(() => {
@@ -109,6 +130,10 @@ function App() {
     };
 
     const getNextGrid = (grid: boolean[][]) => {
+      // console.log('getNextGrid');
+      // console.log(grid.map((row, rowIndex) =>
+      //   row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
+      // ));
       return grid.map((row, rowIndex) =>
         row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
       );

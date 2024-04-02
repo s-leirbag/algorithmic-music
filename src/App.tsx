@@ -50,7 +50,8 @@ const theme = createTheme({
 });
 
 
-const SIZE = 7;
+const NUM_ROWS = 7;
+const NUM_COLS = 8;
 const DEFAULT_INTERVAL = 1000;
 
 function Cell({active, playing, onClick}: {active: boolean, playing: boolean, onClick: () => void}) {
@@ -67,7 +68,7 @@ type Note = {
 }
 
 function App() {
-  const defaultGrid = Array.from({ length: SIZE }).map(() => Array.from({ length: SIZE }).map(() => false));
+  const defaultGrid = Array.from({ length: NUM_ROWS }).map(() => Array.from({ length: NUM_COLS }).map(() => false));
   defaultGrid.forEach((row, i) => {
     row[i] = true;
   });
@@ -79,7 +80,7 @@ function App() {
   const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
 
   useEffect(() => {
-    const newNotesToPlay: Note[][] = Array.from({ length: SIZE }).map(() => []);
+    const newNotesToPlay: Note[][] = Array.from({ length: NUM_COLS }).map(() => []);
     const now = Tone.now()
     const SCALE = ['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
     grid.forEach((row, i) => {
@@ -111,10 +112,10 @@ function App() {
   useEffect(() => {
     const getNeighborCount = (i: number, j: number, grid: boolean[][]) => {
       let count = 0;
-      for (let x = i - 1; x <= i + 1; x++) {
-        for (let y = j - 1; y <= j + 1; y++) {
-          if (x >= 0 && x < SIZE && y >= 0 && y < SIZE && !(x === i && y === j)) {
-            if (grid[x][y]) {
+      for (let row = i - 1; row <= i + 1; row++) {
+        for (let col = j - 1; col <= j + 1; col++) {
+          if (row >= 0 && row < NUM_ROWS && col >= 0 && col < NUM_COLS && !(row === i && col === j)) {
+            if (grid[row][col]) {
               count++;
             }
           }
@@ -146,8 +147,8 @@ function App() {
     if (status === 'play') {
       interval = setInterval(() => {
         setColToPlay((c) => {
-          let newC = (c + 1) % SIZE;
-          if (newC === SIZE - 1) {
+          let newC = (c + 1) % NUM_COLS;
+          if (newC === NUM_COLS - 1) {
             setTimeout(() => setGrid((g) => getNextGrid(g)), DEFAULT_INTERVAL / speed / 2);
           }
           return newC;
@@ -179,7 +180,7 @@ function App() {
 
   const randomizeGrid = () => {
     const newGrid = grid.map((row) =>
-      row.map(() => Math.random() < 0.5)
+      row.map(() => Math.random() < 0.3)
     );
     setGrid(newGrid);
   }
@@ -226,9 +227,9 @@ function App() {
         </Paper>
         <table>
           <tbody>
-            {Array.from({ length: SIZE }).map((_, i) => (
+            {Array.from({ length: NUM_ROWS }).map((_, i) => (
               <tr key={i}>
-                {Array.from({ length: SIZE }).map((_, j) => (
+                {Array.from({ length: NUM_COLS }).map((_, j) => (
                   <Cell key={j} active={grid[i][j]} playing={j === colToPlay} onClick={() => {handleToggle(i, j)}} />
                 ))}
               </tr>

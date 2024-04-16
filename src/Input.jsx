@@ -131,7 +131,7 @@ export function InputSlider(props) {
   };
 
   return (
-    <Box>
+    <Box sx={{width: '300px'}}>
       <Grid container spacing={2} alignItems="center">
         <Grid item>
           <Typography id="input-slider" variant='h6' gutterBottom>{props.name}</Typography>

@@ -34,15 +34,6 @@ export function getChord(root: string, type: string) {
     return notes;
 }
 
-// Function to play a chord
-function playChord(chord: string[]) {
-    for (let note of chord) {
-        console.log("Playing", note);
-        // Code to play the note (e.g., using a music library or hardware)
-    }
-}
-
-// Chord progressions
 export const chordProgressions = {
     "I-IV-V-I": ["C4", "F4", "G4", "C4"],
     "I-vi-IV-V": ["C4", "A4", "F4", "G4"],
@@ -50,19 +41,6 @@ export const chordProgressions = {
     "I-IV-vi-V": ["C4", "F4", "A4", "G4"],
     "vi-IV-I-V": ["A4", "F4", "C4", "G4"]
 };
-
-// Function to play a chord progression
-function playChordProgression(progression: string[]) {
-    for (let chord of progression) {
-        const notes = getChord(chord, 'major');
-        // console.log(notes);
-        playChord(notes);
-    }
-}
-
-// Example usage
-// console.log("Playing chord progression 'I-IV-V-I'");
-// playChordProgression(chordProgressions["I-IV-V-I"]);
 
 export const DRUMS = {
     kick: '/Drums - One Shots/Kicks/Cymatics - Lofi Kick 1 - C.wav',

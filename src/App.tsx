@@ -1,5 +1,4 @@
 import { useEffect, useState, SetStateAction } from 'react';
-import { getChord, chordProgressions } from './Util.mjs';
 import './App.css';
 
 import Button from '@mui/material/Button';
@@ -12,8 +11,11 @@ import { PlayCircle, PauseCircle, StopCircle, ReplayCircleFilled } from '@mui/ic
 import { InputSlider } from './Input';
 
 import * as Tone from 'tone';
+import { Howl, Howler } from 'howler';
 
-const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+import { getChord, chordProgressions, DRUMS } from './Util.mjs';
+
+const synth = new Tone.PolySynth(Tone.AMSynth).toDestination();
 
 const theme = createTheme({
   palette: {
@@ -127,6 +129,14 @@ function App() {
     notesToPlay[colToPlay].forEach((note) => {
       synth.triggerAttackRelease(note.note, note.length);
     });
+    
+    notesToPlay[colToPlay].forEach((note) => {
+      const sound = new Howl({
+        src: [DRUMS['kick']]
+      })
+      sound.play()
+    });
+
   }, [colToPlay, status]);
 
   useEffect(() => {

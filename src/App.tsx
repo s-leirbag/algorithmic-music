@@ -66,6 +66,7 @@ function Cell({active, playing, onClick}: {active: boolean, playing: boolean, on
 type Note = {
   note: string;
   time: number;
+  length: number;
 }
 
 function App() {
@@ -84,22 +85,38 @@ function App() {
   const [chord, setChord] = useState<number>(0);
 
   useEffect(() => {
-    const newNotesToPlay: Note[][] = Array.from({ length: NUM_COLS }).map(() => []);
+    const rawNotes: Note[][] = Array.from({ length: NUM_COLS }).map(() => []);
     const now = Tone.now()
     grid.forEach((row, i) => {
-      row.forEach((_, j) => {
-        if (!grid[i][j]) {
-          return;
+      let start = null;
+      for (let j = 0; j <= row.length; j++) {
+        if (start && (j === row.length || !row[j])) {
+          const secInterval = DEFAULT_INTERVAL / speed / 1000;
+          rawNotes[start].push({
+            note: getChord(chordProg[chord], 'major')[i % 3],
+            time: now + secInterval * j,
+            length: secInterval * (j - start),
+          });
+          start = null;
         }
-        const secInterval = DEFAULT_INTERVAL / speed / 1000;
-        newNotesToPlay[j].push({
-          note: getChord(chordProg[chord], 'major')[i % 3],
-          time: now + secInterval * j
-        });
-      });
+        else if (!start && row[j]) {
+          start = j;
+        }
+      }
     });
 
-    setNotesToPlay(newNotesToPlay);
+    const uniqueNotes = [];
+    for (const col of rawNotes) {
+      const map = new Map();
+      for (const note of col) {
+        if (!map.has(note.note) || map.get(note.note).length < note.length) {
+          map.set(note.note, note);
+        }
+      }
+      uniqueNotes.push(Array.from(map.values()));
+    }
+
+    setNotesToPlay(uniqueNotes);
   }, [grid, speed]);
 
   useEffect(() => {
@@ -108,7 +125,7 @@ function App() {
     }
 
     notesToPlay[colToPlay].forEach((note) => {
-      synth.triggerAttackRelease(note.note, '8n');
+      synth.triggerAttackRelease(note.note, note.length);
     });
   }, [colToPlay, status]);
 

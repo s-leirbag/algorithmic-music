@@ -12,7 +12,6 @@ Maps Conway's Game of Life to music!
 - Pattern presets
 - Board size
 - Styling
-- Join adjacent notes
 - Move speed to bpm
 - ...
 

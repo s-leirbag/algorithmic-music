@@ -6,6 +6,13 @@ Maps Conway's Game of Life to music!
 
 ## To-do
 
+- Chords
+- Percussion
+- Wrap board
+- Pattern presets
+- Board size
+- Styling
+- Join adjacent notes
 - ...
 
 ## Milestones

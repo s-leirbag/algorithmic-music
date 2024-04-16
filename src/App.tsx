@@ -134,10 +134,6 @@ function App() {
     };
 
     const getNextGrid = (grid: boolean[][]) => {
-      // console.log('getNextGrid');
-      // console.log(grid.map((row, rowIndex) =>
-      //   row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
-      // ));
       return grid.map((row, rowIndex) =>
         row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
       );

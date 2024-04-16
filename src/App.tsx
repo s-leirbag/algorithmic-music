@@ -1,4 +1,5 @@
 import { useEffect, useState, SetStateAction } from 'react';
+import { getChord, chordProgressions } from './Util.mjs';
 import './App.css';
 
 import Button from '@mui/material/Button';
@@ -72,17 +73,19 @@ function App() {
   defaultGrid.forEach((row, i) => {
     row[i] = true;
   });
+
   const [grid, setGrid] = useState(defaultGrid);
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(3);
   const [colToPlay, setColToPlay] = useState(0);
   const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
+  const [chordProg] = useState<string[]>(chordProgressions["I-IV-V-I"]);
+  const [chord, setChord] = useState<number>(0);
 
   useEffect(() => {
     const newNotesToPlay: Note[][] = Array.from({ length: NUM_COLS }).map(() => []);
     const now = Tone.now()
-    const SCALE = ['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
     grid.forEach((row, i) => {
       row.forEach((_, j) => {
         if (!grid[i][j]) {
@@ -90,7 +93,7 @@ function App() {
         }
         const secInterval = DEFAULT_INTERVAL / speed / 1000;
         newNotesToPlay[j].push({
-          note: SCALE[i],
+          note: getChord(chordProg[chord], 'major')[i % 3],
           time: now + secInterval * j
         });
       });
@@ -145,7 +148,10 @@ function App() {
         setColToPlay((c) => {
           let newC = (c + 1) % NUM_COLS;
           if (newC === NUM_COLS - 1) {
-            setTimeout(() => setGrid((g) => getNextGrid(g)), DEFAULT_INTERVAL / speed / 2);
+            setTimeout(() => {
+              setGrid((g) => getNextGrid(g));
+              setChord((c) => (c + 1) % 3);
+            }, DEFAULT_INTERVAL / speed / 2);
           }
           return newC;
         });

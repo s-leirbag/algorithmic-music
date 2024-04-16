@@ -13,6 +13,7 @@ Maps Conway's Game of Life to music!
 - Board size
 - Styling
 - Join adjacent notes
+- Move speed to bpm
 - ...
 
 ## Milestones

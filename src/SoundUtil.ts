@@ -2,7 +2,7 @@ export const SCALE_REV = ['B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4'];
 export const SCALE = SCALE_REV.reverse();
 
 // Function to get the notes for a chord based on its root note
-export function getChord(root, type) {
+export function getChord(root: string, type: string) {
     const rootIndex = SCALE.indexOf(root);
     if (rootIndex === -1) {
         console.error("Root note not found in the scale!");
@@ -35,7 +35,7 @@ export function getChord(root, type) {
 }
 
 // Function to play a chord
-function playChord(chord) {
+function playChord(chord: string[]) {
     for (let note of chord) {
         console.log("Playing", note);
         // Code to play the note (e.g., using a music library or hardware)
@@ -52,7 +52,7 @@ export const chordProgressions = {
 };
 
 // Function to play a chord progression
-function playChordProgression(progression) {
+function playChordProgression(progression: string[]) {
     for (let chord of progression) {
         const notes = getChord(chord, 'major');
         // console.log(notes);

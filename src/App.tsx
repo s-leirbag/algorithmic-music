@@ -13,9 +13,10 @@ import { InputSlider } from './Input';
 import * as Tone from 'tone';
 import { Howl, Howler } from 'howler';
 
-import { getChord, chordProgressions, DRUMS } from './Util.mjs';
+import { getChord, chordProgressions, DRUMS } from './SoundUtil';
+import { getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 
-const synth = new Tone.PolySynth(Tone.AMSynth).toDestination();
+const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
 const theme = createTheme({
   palette: {
@@ -53,8 +54,8 @@ const theme = createTheme({
 });
 
 
-const NUM_ROWS = 7;
-const NUM_COLS = 8;
+const N_ROWS = 7;
+const N_COLS = 8;
 const DEFAULT_INTERVAL = 1000;
 
 function Cell({active, playing, onClick}: {active: boolean, playing: boolean, onClick: () => void}) {
@@ -72,12 +73,7 @@ type Note = {
 }
 
 function App() {
-  const defaultGrid = Array.from({ length: NUM_ROWS }).map(() => Array.from({ length: NUM_COLS }).map(() => false));
-  defaultGrid.forEach((row, i) => {
-    row[i] = true;
-  });
-
-  const [grid, setGrid] = useState(defaultGrid);
+  const [grid, setGrid] = useState(diagGrid(N_ROWS, N_COLS));
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
   const [speed, setSpeed] = useState(3);
@@ -87,7 +83,7 @@ function App() {
   const [chord, setChord] = useState<number>(0);
 
   useEffect(() => {
-    const rawNotes: Note[][] = Array.from({ length: NUM_COLS }).map(() => []);
+    const rawNotes: Note[][] = Array.from({ length: N_COLS }).map(() => []);
     const now = Tone.now()
     grid.forEach((row, i) => {
       let start = null;
@@ -140,41 +136,12 @@ function App() {
   }, [colToPlay, status]);
 
   useEffect(() => {
-    const getNeighborCount = (i: number, j: number, grid: boolean[][]) => {
-      let count = 0;
-      for (let row = i - 1; row <= i + 1; row++) {
-        for (let col = j - 1; col <= j + 1; col++) {
-          if (row >= 0 && row < NUM_ROWS && col >= 0 && col < NUM_COLS && !(row === i && col === j)) {
-            if (grid[row][col]) {
-              count++;
-            }
-          }
-        }
-      }
-      return count;
-    };
-  
-    const getNextCellState = (i: number, j: number, grid: boolean[][]) => {
-      const count = getNeighborCount(i, j, grid);
-      if (grid[i][j]) {
-        return count === 2 || count === 3;
-      } else {
-        return count === 3;
-      }
-    };
-
-    const getNextGrid = (grid: boolean[][]) => {
-      return grid.map((row, rowIndex) =>
-        row.map((cell, cellIndex) => getNextCellState(rowIndex, cellIndex, grid))
-      );
-    };
-    
     let interval: NodeJS.Timeout;
     if (status === 'play') {
       interval = setInterval(() => {
         setColToPlay((c) => {
-          let newC = (c + 1) % NUM_COLS;
-          if (newC === NUM_COLS - 1) {
+          let newC = (c + 1) % N_COLS;
+          if (newC === N_COLS - 1) {
             setTimeout(() => {
               setGrid((g) => getNextGrid(g));
               setChord((c) => (c + 1) % 3);
@@ -192,27 +159,6 @@ function App() {
       clearInterval(interval);
     }
   }, [status, speed]);
-
-  const clearGrid = () => {
-    const newGrid = grid.map((row) =>
-      row.map(() => false)
-    );
-    setGrid(newGrid);
-  }
-
-  const fillGrid = () => {
-    const newGrid = grid.map((row) =>
-      row.map(() => true)
-    );
-    setGrid(newGrid);
-  }
-
-  const randomizeGrid = () => {
-    const newGrid = grid.map((row) =>
-      row.map(() => Math.random() < 0.3)
-    );
-    setGrid(newGrid);
-  }
 
   const handleToggle = (i: number, j: number) => {
     const newGrid = grid.map((row, rowIndex) =>
@@ -256,18 +202,18 @@ function App() {
         </Paper>
         <table>
           <tbody>
-            {Array.from({ length: NUM_ROWS }).map((_, i) => (
+            {Array.from({ length: N_ROWS }).map((_, i) => (
               <tr key={i}>
-                {Array.from({ length: NUM_COLS }).map((_, j) => (
+                {Array.from({ length: N_COLS }).map((_, j) => (
                   <Cell key={j} active={grid[i][j]} playing={j === colToPlay} onClick={() => {handleToggle(i, j)}} />
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
-        <Button variant='outlined' onClick={clearGrid}>Clear</Button>
-        <Button variant='outlined' onClick={fillGrid}>Fill</Button>
-        <Button variant='outlined' onClick={randomizeGrid}>Randomize</Button>
+        <Button variant='outlined' onClick={() => setGrid(clearGrid(N_ROWS, N_COLS))}>Clear</Button>
+        <Button variant='outlined' onClick={() => setGrid(fillGrid(N_ROWS, N_COLS))}>Fill</Button>
+        <Button variant='outlined' onClick={() => setGrid(randGrid(N_ROWS, N_COLS, 0.3))}>Randomize</Button>
         {playPauseButton}
         {stopButton}
         <div style={{width: '300px'}}>

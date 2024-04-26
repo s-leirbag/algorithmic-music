@@ -34,13 +34,19 @@ export function getChord(root: string, type: string) {
     return notes;
 }
 
-export const chordProgressions = {
-    "I-IV-V-I": ["C4", "F4", "G4", "C4"],
-    "I-vi-IV-V": ["C4", "A4", "F4", "G4"],
-    "ii-V-I": ["D4", "G4", "C4"],
-    "I-IV-vi-V": ["C4", "F4", "A4", "G4"],
-    "vi-IV-I-V": ["A4", "F4", "C4", "G4"]
-};
+export const progs = new Map([
+    ["I-IV-V-I", ["C4", "F4", "G4", "C4"]],
+    ["I-vi-IV-V", ["C4", "A4", "F4", "G4"]],
+    ["ii-V-I", ["D4", "G4", "C4"]],
+    ["I-IV-vi-V", ["C4", "F4", "A4", "G4"]],
+    ["vi-IV-I-V", ["A4", "F4", "C4", "G4"]],
+]);
+
+export const progNames = Array.from(progs.keys())
+
+export const randProgName = () => {
+    return progNames[Math.floor(Math.random() * progNames.length)];
+}
 
 export const DRUMS = {
     kick: '/Drums - One Shots/Kicks/Cymatics - Lofi Kick 1 - C.wav',

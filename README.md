@@ -8,11 +8,13 @@ Maps Conway's Game of Life to music!
 
 - Chords
 - Percussion
+- Add parts: bass, melody, chords, percussion
 - Wrap board
 - Pattern presets
 - Board size
 - Styling
 - Move speed to bpm
+- Play by colums or generations
 - ...
 
 ## Milestones

@@ -3,7 +3,10 @@ import './App.css';
 
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
+import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
+import Select from '@mui/material/Select';
+import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography';
 
 import * as Tone from 'tone';
@@ -11,7 +14,7 @@ import { Howl } from 'howler';
 
 import { getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 
-import { getChord, chordProgressions, DRUMS } from './SoundUtil';
+import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
 
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
@@ -42,8 +45,9 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
   const [grid, setGrid] = useState(diagGrid(nRows, nCols));
   const [colToPlay, setColToPlay] = useState(0);
   const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
-  const [chordProg] = useState<string[]>(chordProgressions["I-IV-V-I"]);
-  const [chord, setChord] = useState<number>(0);
+  const [progName, setProgName] = useState<string>(randProgName());
+  const [progChords, setProgChords] = useState<string[]>(progs.get(progName) as string[]);
+  const [chordInd, setChordInd] = useState<number>(0);
 
   useEffect(() => {
     const rawNotes: Note[][] = Array.from({ length: nCols }).map(() => []);
@@ -53,8 +57,10 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
       for (let j = 0; j <= row.length; j++) {
         if (start && (j === row.length || !row[j])) {
           const secInterval = defaultInterval / speed / 1000;
+          const note = getChord(progChords[chordInd], 'major')[i % 3];
+          const drum = Object.values(DRUMS)[i];
           rawNotes[start].push({
-            note: getChord(chordProg[chord], 'major')[i % 3],
+            note: name === 'Melody' ? note : drum,
             time: now + secInterval * j,
             length: secInterval * (j - start),
           });
@@ -86,16 +92,18 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
     }
 
     notesToPlay[colToPlay].forEach((note) => {
-      synth.triggerAttackRelease(note.note, note.length);
+      if (name === 'Melody') {
+        synth.triggerAttackRelease(note.note, note.length);
+      }
+      else {
+        const sound = new Howl({
+          src: [note.note]
+        })
+        setTimeout(() => {
+          sound.play();
+        }, 100);
+      }
     });
-    
-    notesToPlay[colToPlay].forEach((note) => {
-      const sound = new Howl({
-        src: [DRUMS['kick']]
-      })
-      sound.play()
-    });
-
   }, [colToPlay, status]);
 
   useEffect(() => {
@@ -107,7 +115,7 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
           if (newC === nCols - 1) {
             setTimeout(() => {
               setGrid((g) => getNextGrid(g));
-              setChord((c) => (c + 1) % 3);
+              setChordInd((c) => (c + 1) % 3);
             }, defaultInterval / speed / 2);
           }
           return newC;
@@ -136,8 +144,8 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
   }
 
   return (
-    <Paper sx={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }} elevation={4}>
-      <Typography variant='h4' component='h5' width='100%' align='center' >{name}</Typography>
+    <Paper sx={{ display: 'flex', flexDirection: 'column' }} elevation={4}>
+      <Typography variant='h5' component='h5' width='100%' align='center' >{name}</Typography>
       <table>
         <tbody>
           {Array.from({ length: nRows }).map((_, i) => (
@@ -154,6 +162,20 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
         <Button variant='outlined' onClick={() => setGrid(fillGrid(nRows, nCols))}>Fill</Button>
         <Button variant='outlined' onClick={() => setGrid(randGrid(nRows, nCols, 0.3))}>Randomize</Button>
       </ButtonGroup>
+      {name === 'Melody' ? (
+        <>
+          <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>
+          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+            <Typography variant='body1' component='p' align='center' >Progression: </Typography>
+            <Select
+              value={progName}
+              onChange={(e) => setProgName(e.target.value)}
+            >
+              {progNames.map((name) => <MenuItem value={name}>{name}</MenuItem>)}
+            </Select>
+          </Stack>
+        </>
+      ) : ''}
     </Paper>
   );
 }

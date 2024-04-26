@@ -2,8 +2,10 @@ const getNeighborCount = (i: number, j: number, grid: boolean[][]) => {
   let count = 0;
   for (let row = i - 1; row <= i + 1; row++) {
     for (let col = j - 1; col <= j + 1; col++) {
-      if (row >= 0 && row < grid.length && col >= 0 && col < grid[0].length && !(row === i && col === j)) {
-        if (grid[row][col]) {
+      const wrapRow = (row + grid.length) % grid.length;
+      const wrapCol = (col + grid[0].length) % grid[0].length;
+      if (!(wrapRow === i && wrapCol === j)) {
+        if (grid[wrapRow][wrapCol]) {
           count++;
         }
       }

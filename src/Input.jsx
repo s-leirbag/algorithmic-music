@@ -104,6 +104,9 @@ export function PositionInput(props) {
  */
 export function InputSlider(props) {
   const [value, setValue] = React.useState(props.value);
+  if (props.value !== value) {
+    setValue(props.value);
+  }
 
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);

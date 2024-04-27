@@ -12,8 +12,9 @@ import Typography from '@mui/material/Typography';
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import { getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
+import { InputSlider } from './Input';
 
+import { presets, presetNames, resizeGrid, getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
 
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -34,15 +35,17 @@ function Cell({active, playing, onClick}: {active: boolean, playing: boolean, on
 
 interface GridProps {
   name: string,
-  nRows: number,
-  nCols: number,
+  defaultNRows?: number,
+  defaultNCols?: number,
   defaultInterval: number,
   speed: number,
   status: string,
 }
 
-export default function Grid({ name, nRows, nCols, defaultInterval, speed, status }: GridProps) {
-  const [grid, setGrid] = useState(diagGrid(nRows, nCols));
+export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status }: GridProps) {
+  const [nRows, setNRows] = useState(defaultNRows || 5);
+  const [nCols, setNCols] = useState(defaultNCols || 8);
+  const [grid, setGrid] = useState(randGrid(nRows, nCols));
   const [colToPlay, setColToPlay] = useState(0);
   const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
   const [progName, setProgName] = useState<string>(randProgName());
@@ -62,7 +65,7 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
         for (let j = 0; j <= row.length; j++) {
           if (start && (j === row.length || !row[j])) {
             const note = getChord(progChords[chordInd], 'major')[i % 3];
-            const drum = Object.values(DRUMS)[i];
+            const drum = Object.values(DRUMS)[i % Object.values(DRUMS).length];
             rawNotes[start].push({
               note: name === 'Melody' ? note : drum,
               time: now + secInterval * j,
@@ -192,11 +195,34 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
           ))}
         </tbody>
       </table>
-      <ButtonGroup variant="contained" aria-label="Basic button group">
+      <ButtonGroup variant="contained" aria-label="Basic button group" sx={{margin: 'auto'}}>
         <Button variant='outlined' onClick={() => setGrid(clearGrid(nRows, nCols))}>Clear</Button>
         <Button variant='outlined' onClick={() => setGrid(fillGrid(nRows, nCols))}>Fill</Button>
         <Button variant='outlined' onClick={() => setGrid(randGrid(nRows, nCols, 0.3))}>Randomize</Button>
       </ButtonGroup>
+      <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+        <Typography variant='body1' component='p' align='center' >Use Preset: </Typography>
+        <Select
+          defaultValue={'Preset'}
+          onChange={(e) => {
+            const res = presets.get(e.target.value)?.call({}, nRows, nCols);
+            if (res) {
+              if (res.newNCols) {
+                setNCols(res.newNCols);
+              }
+              if (res.newNRows) {
+                setNRows(res.newNRows);
+              }
+              setGrid(res.grid);
+            }
+          }}
+        >
+          <MenuItem value='Preset' disabled>
+            <em>None</em>
+          </MenuItem>
+          {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+        </Select>
+      </Stack>
       {name === 'Melody' ? (
         <>
           <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>
@@ -204,13 +230,27 @@ export default function Grid({ name, nRows, nCols, defaultInterval, speed, statu
             <Typography variant='body1' component='p' align='center' >Progression: </Typography>
             <Select
               value={progName}
-              onChange={(e) => setProgName(e.target.value)}
+              onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
             >
               {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
             </Select>
           </Stack>
         </>
       ) : ''}
+      <InputSlider
+        name='Rows'
+        value={nRows}
+        min={1}
+        max={32}
+        onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n);}}
+      />
+      <InputSlider
+        name='Columns'
+        value={nCols}
+        min={1}
+        max={32}
+        onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
+      />
     </Paper>
   );
 }

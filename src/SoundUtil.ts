@@ -44,17 +44,17 @@ export const progs = new Map([
 
 export const progNames = Array.from(progs.keys())
 
-export const randProgName = () => {
+export function randProgName() {
     return progNames[Math.floor(Math.random() * progNames.length)];
 }
 
 export const DRUMS = {
-    kick: '/Drums - One Shots/Kicks/Cymatics - Lofi Kick 1 - C.wav',
-    clap: '/Drums - One Shots/Claps/Cymatics - Lofi Clap 1.wav',
-    closed: '/Drums - One Shots/Cymbals/Closed Hihats/Cymatics - Lofi Closed Hihat 1.wav',
     crash: '/Drums - One Shots/Cymbals/Crashes/Cymatics - Lofi Crash 1.wav',
     open: '/Drums - One Shots/Cymbals/Open Hihats/Cymatics - Lofi Open Hihat 1.wav',
+    snare: '/Drums - One Shots/Snares/Cymatics - Lofi Snare 1 - Csharp.wav',
+    kick: '/Drums - One Shots/Kicks/Cymatics - Lofi Kick 1 - C.wav',
+    closed: '/Drums - One Shots/Cymbals/Closed Hihats/Cymatics - Lofi Closed Hihat 1.wav',
     ride: '/Drums - One Shots/Cymbals/Rides/Cymatics - Lofi Ride 1.wav',
-    snare: '/Drums - One Shots/Snares/Cymatics - Lofi Snare 1 - C#.wav',
     perc: '/Drums - One Shots/Percussion/Cymatics - Lofi Percussion 1.wav',
+    clap: '/Drums - One Shots/Claps/Cymatics - Lofi Clap 1.wav',
 }

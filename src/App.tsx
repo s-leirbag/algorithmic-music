@@ -58,8 +58,6 @@ const theme = createTheme({
 });
 
 
-const nRows = 7;
-const nCols = 8;
 const defaultInterval = 1000;
 
 function App() {
@@ -96,16 +94,12 @@ function App() {
         <Stack direction='row' spacing={2}>
           <Grid
             name='Melody'
-            nRows={nRows}
-            nCols={nCols}
             defaultInterval={defaultInterval}
             speed={speed}
             status={status}
           />
           <Grid
             name='Drums'
-            nRows={nRows}
-            nCols={nCols}
             defaultInterval={defaultInterval}
             speed={speed}
             status={status}

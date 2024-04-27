@@ -6,15 +6,13 @@ Maps Conway's Game of Life to music!
 
 ## To-do
 
-- Chords
-- Percussion
-- Add parts: bass, melody, chords, percussion
-- Wrap board
 - Pattern presets
-- Board size
+- Octave
+- Instrument
+- Add parts: bass, melody, chords, percussion
+- Volume
 - Styling
 - Move speed to bpm
-- Play by colums or generations
 - ...
 
 ## Milestones

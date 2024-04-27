@@ -14,7 +14,7 @@ import { Howl } from 'howler';
 
 import { InputSlider } from './Input';
 
-import { presets, presetNames, resizeGrid, getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
+import { gridToString, presets, presetNames, resizeGrid, getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
 
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -195,7 +195,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           ))}
         </tbody>
       </table>
-      <ButtonGroup variant="contained" aria-label="Basic button group" sx={{margin: 'auto'}}>
+      <ButtonGroup variant="contained" aria-label="Basic button group" sx={{marginX: 'auto'}}>
         <Button variant='outlined' onClick={() => setGrid(clearGrid(nRows, nCols))}>Clear</Button>
         <Button variant='outlined' onClick={() => setGrid(fillGrid(nRows, nCols))}>Fill</Button>
         <Button variant='outlined' onClick={() => setGrid(randGrid(nRows, nCols, 0.3))}>Randomize</Button>
@@ -223,20 +223,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
         </Select>
       </Stack>
-      {name === 'Melody' ? (
-        <>
-          <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>
-          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-            <Typography variant='body1' component='p' align='center' >Progression: </Typography>
-            <Select
-              value={progName}
-              onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
-            >
-              {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-            </Select>
-          </Stack>
-        </>
-      ) : ''}
+      <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button>
       <InputSlider
         name='Rows'
         value={nRows}
@@ -251,6 +238,20 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
         max={32}
         onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
       />
+      {name === 'Melody' ? (
+        <>
+          <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>
+          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+            <Typography variant='body1' component='p' align='center' >Progression: </Typography>
+            <Select
+              value={progName}
+              onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
+            >
+              {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+            </Select>
+          </Stack>
+        </>
+      ) : ''}
     </Paper>
   );
 }

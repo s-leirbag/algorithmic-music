@@ -70,27 +70,31 @@ export const randGrid = (nRows: number, nCols: number, threshold: number = 0.3) 
 }
 
 const presetsRaw = new Map([
-  ['glider',
+  [
+    'glider',
     `
       010
       001
       111
     `
   ],
-  ['blinker',
+  [
+    'blinker',
     `
       000
       111
       000
     `
   ],
-  ['toad',
+  [
+    'toad',
     `
       0111
       1110
     `
   ],
-  ['beacon',
+  [
+    'beacon',
     `
       1100
       1100
@@ -98,9 +102,160 @@ const presetsRaw = new Map([
       0011
     `
   ],
+  [
+    'boi',
+    `
+      1100
+      0110
+      0110
+      1100
+    `
+  ],
+  [
+    '4 boats',
+    `
+      00010000
+      00101000
+      01011000
+      10100110
+      01100101
+      00011010
+      00010100
+      00001000
+    `
+  ],
+  [
+    'kickback',
+    `
+    00100
+    01000
+    01110
+    00000
+    00000
+    00110
+    01010
+    00010
+    `
+  ],
+  [
+    'almosymmetric',
+    `
+    000010000
+    110010100
+    101000000
+    000000011
+    010000000
+    100000010
+    110101000
+    000001000
+    `
+  ],
+  [
+    'ants',
+    // `
+    // 1100011000110001100
+    // 0011000110001100011
+    // 0011000110001100011
+    // 1100011000110001100
+    // `
+    // `
+    // 000000000000000000000
+    // 011000110001100011000
+    // 000110001100011000110
+    // 000110001100011000110
+    // 011000110001100011000
+    // 000000000000000000000
+    // `
+    `
+    0000000000000000
+    0110001100011000
+    0001100011000110
+    0001100011000110
+    0110001100011000
+    0000000000000000
+    `
+  ],
+  [
+    'Achim\'s p8',
+    `
+    011000000
+    100000000
+    010001000
+    010001100
+    000101000
+    001100010
+    000100010
+    000000001
+    000000110
+    `
+  ],
+  [
+    '25P3H1V0.1',
+    `
+    0000000000000000
+    0000000110100000
+    0000110101101110
+    0111100110000001
+    1000010001000110
+    0110000000000000
+    `
+  ],
+  [
+    'Achim\'s p16',
+    `
+    000000000000000
+    000000001100000
+    000000001010000
+    000100001011000
+    001100000100000
+    010010000000000
+    011100000000000
+    000000000000000
+    000000000001110
+    000000000010010
+    000001000001100
+    000110100001000
+    000010100000000
+    000001100000000
+    000000000000000
+    `
+  ],
+  [
+    'A for all',
+    `
+    0000110000
+    0001001000
+    0001111000
+    0101001010
+    1000000001
+    1000000001
+    0101001010
+    0001111000
+    0001001000
+    0000110000
+    `
+  ],
+  [
+    '4-8-12 diamond',
+    `
+    00000000000000
+    00000000000000
+    00000111100000
+    00000000000000
+    00011111111000
+    00000000000000
+    01111111111110
+    00000000000000
+    00011111111000
+    00000000000000
+    00000111100000
+    00000000000000
+    00000000000000
+    `
+  ],
 ]);
 
-function processBinaryString(inputString: string, buffer: boolean = false) {
+function stringToGrid(inputString: string, buffer: boolean = false) {
   const rows = inputString.trim().split('\n');
   const matrix = [];
   let nCols = 0;
@@ -124,9 +279,13 @@ function processBinaryString(inputString: string, buffer: boolean = false) {
   return matrix;
 }
 
+export function gridToString(array: boolean[][]): string {
+  return array.map(row => row.map(cell => cell ? '1' : '0').join('')).join('\n');
+}
+
 const presetsArrays = new Map<string, boolean[][]>();
 presetsRaw.forEach((raw, name) => {
-  presetsArrays.set(name, processBinaryString(raw, true));
+  presetsArrays.set(name, stringToGrid(raw, true));
 })
 
 export const presets = new Map<string, (nRows: number, nCols: number) => { grid: boolean[][]; newNRows: number | undefined; newNCols: number | undefined; }>();

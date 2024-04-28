@@ -13,7 +13,6 @@ Maps Conway's Game of Life to music!
 - Minor key progressions
 - Add grids as you want
 - Move speed to bpm
-- Icon & title
 - ...
 
 ## Milestones

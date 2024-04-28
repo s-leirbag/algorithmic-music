@@ -10,6 +10,8 @@ Maps Conway's Game of Life to music!
 - Instrument
 - Add parts: bass, melody, chords, percussion
 - Styling
+- Minor key progressions
+- Add grids as you want
 - Move speed to bpm
 - ...
 

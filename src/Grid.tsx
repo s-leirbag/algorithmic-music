@@ -7,6 +7,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack'
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 
 import * as Tone from 'tone';
@@ -54,6 +56,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [mode, setMode] = useState<string>(name === 'Melody' ? 'step' : 'instant');
   const [volume, setVolume] = useState<number>(50);
 
+
   // Write notes
   // And if on instant mode, play
   useEffect(() => {
@@ -62,24 +65,39 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     const secInterval = defaultInterval / speed / 1000;
 
     if (mode === 'step') {
-      grid.forEach((row, i) => {
-        let start = null;
-        for (let j = 0; j <= row.length; j++) {
-          if (start && (j === row.length || !row[j])) {
-            const note = getChord(progChords[chordInd], 'major')[i % 3];
-            const drum = Object.values(DRUMS)[i % Object.values(DRUMS).length];
-            rawNotes[start].push({
-              note: name === 'Melody' ? note : drum,
-              time: now + secInterval * j,
-              length: secInterval * (j - start),
-            });
-            start = null;
+      if (name === 'Melody') {
+        grid.forEach((row, i) => {
+          let start = null;
+          for (let j = 0; j <= row.length; j++) {
+            if (start && (j === row.length || !row[j])) {
+              const note = getChord(progChords[chordInd], 'major')[i % 3];
+              rawNotes[start].push({
+                note: note,
+                time: now + secInterval * j,
+                length: secInterval * (j - start),
+              });
+              start = null;
+            }
+            else if (!start && row[j]) {
+              start = j;
+            }
           }
-          else if (!start && row[j]) {
-            start = j;
-          }
-        }
-      });
+        });
+      }
+      else {
+        grid.forEach((row, i) => {
+          row.forEach((v, j) => {
+            if (v) {
+              const drum = Object.values(DRUMS)[i % Object.values(DRUMS).length];
+              rawNotes[j].push({
+                note: drum,
+                time: now + secInterval * j,
+                length: secInterval,
+              });
+            }
+          });
+        });
+      }
     } else {
       // mode === 'instant'
       grid.forEach((row, i) => {
@@ -110,7 +128,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     if (mode === 'instant') {
       playNotes(uniqueNotes[0]);
     }
-  }, [grid, speed]);
+  }, [grid, speed, mode]);
 
   useEffect(() => {
     const SYNTH_MIN = -12;
@@ -143,11 +161,12 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     if (status !== 'play' || mode !== 'step') return;
 
     playNotes(notesToPlay[colToPlay])
-  }, [colToPlay, status]);
+  }, [colToPlay, status, mode]);
 
   // Change state, set colToPlay interval based on speed
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let altInterval: NodeJS.Timeout;
     if (status === 'play') {
       if (mode === 'step') {
         interval = setInterval(() => {
@@ -166,8 +185,13 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
         // mode === 'instant'
         interval = setInterval(() => {
           setGrid((g) => getNextGrid(g));
-          setChordInd((c) => (c + 1) % 3);
         }, defaultInterval / speed);
+        
+        altInterval = setInterval(() => {
+          setChordInd((c) => (c + 1) % 3);
+        }, defaultInterval / speed * nCols);
+
+        return () => { clearInterval(interval); clearInterval(altInterval) };
       }
     }
     else if (status === 'stop') {
@@ -175,7 +199,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     }
 
     return () => clearInterval(interval);
-  }, [status, speed, nCols]);
+  }, [status, speed, nCols, mode]);
 
   // Toggle a cell
   const handleToggle = (i: number, j: number) => {
@@ -254,6 +278,21 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
         max={100}
         onChange={(n: number) => setVolume(n)}
       />
+      <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+        <Typography variant='body1' component='p' align='center' >Mode: </Typography>
+        <ToggleButtonGroup
+          value={mode}
+          exclusive
+          onChange={(e, v) => setMode(v)}
+        >
+          <ToggleButton value="step">
+            Scan
+          </ToggleButton>
+          <ToggleButton value="instant">
+            Rapid
+          </ToggleButton>
+        </ToggleButtonGroup> 
+      </Stack>    
       {name === 'Melody' ? (
         <>
           <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>

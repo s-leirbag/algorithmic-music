@@ -1,8 +1,8 @@
-# Algorithmic Music
+# Musical Game of Life
 
-## link-tbd
+## https://algorithmic-music.vercel.app/
 
-Maps Conway's Game of Life to music!
+Map Conway's Game of Life to music!
 
 ## To-do
 
@@ -19,6 +19,7 @@ Maps Conway's Game of Life to music!
 
 ## Credits
 
+[Howler.js](https://github.com/goldfire/howler.js/)  
 [Tone.js](https://tonejs.github.io/)  
 [Create React App](https://github.com/facebook/create-react-app)  
 [Material UI](https://mui.com/)  

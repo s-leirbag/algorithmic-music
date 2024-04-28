@@ -280,7 +280,7 @@ presetsRaw.forEach((raw, name) => {
   presetsArrays.set(name, stringToGrid(raw, true));
 })
 
-export const presets = new Map<string, (nRows: number, nCols: number) => { grid: boolean[][]; newNRows: number | undefined; newNCols: number | undefined; }>();
+export const presets = new Map<string, (nRows: number, nCols: number) => { grid: boolean[][]; newNRows?: number; newNCols?: number; }>();
 presetsArrays.forEach((grid, name) => {
   presets.set(name, (nRows: number, nCols: number) => {
     return {
@@ -295,5 +295,10 @@ presetsArrays.forEach((grid, name) => {
     // }
   })
 })
+presets.set('Diagonal', (nRows: number, nCols: number) => {
+  return {
+    grid: diagGrid(nRows, nCols),
+  }
+});
 
-export const presetNames = Array.from(presetsRaw.keys())
+export const presetNames = Array.from(presets.keys())

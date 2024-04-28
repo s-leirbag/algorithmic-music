@@ -16,7 +16,7 @@ import { Howl } from 'howler';
 
 import { InputSlider, NumberInput } from './Input';
 
-import { gridToString, presets, presetNames, resizeGrid, getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
+import { gridToString, presets, presetNames, resizeGrid, getNextGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
 
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -42,9 +42,10 @@ interface GridProps {
   defaultInterval: number,
   speed: number,
   status: string,
+  defaultVolume?: number,
 }
 
-export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status }: GridProps) {
+export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status, defaultVolume }: GridProps) {
   const [nRows, setNRows] = useState(defaultNRows || 5);
   const [nCols, setNCols] = useState(defaultNCols || 8);
   const [grid, setGrid] = useState(randGrid(nRows, nCols));
@@ -54,7 +55,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [progChords, setProgChords] = useState<string[]>(progs.get(progName) as string[]);
   const [chordInd, setChordInd] = useState<number>(0);
   const [mode, setMode] = useState<string>(name === 'Melody' ? 'step' : 'instant');
-  const [volume, setVolume] = useState<number>(50);
+  const [volume, setVolume] = useState<number>(defaultVolume || 50);
   const [preset, setPreset] = useState<string>('none');
 
   // Write notes

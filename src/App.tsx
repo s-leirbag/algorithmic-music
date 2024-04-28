@@ -117,6 +117,7 @@ function App() {
             defaultInterval={defaultInterval}
             speed={speed}
             status={status}
+            defaultVolume={25}
           />
         </Stack>
       </div>

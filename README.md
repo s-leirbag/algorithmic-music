@@ -6,11 +6,9 @@ Maps Conway's Game of Life to music!
 
 ## To-do
 
-- Pattern presets
 - Octave
 - Instrument
 - Add parts: bass, melody, chords, percussion
-- Volume
 - Styling
 - Move speed to bpm
 - ...

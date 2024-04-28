@@ -115,6 +115,7 @@ function App() {
               step={0.25}
               min={0.25}
               max={10}
+              width='300px'
               onChange={(n: SetStateAction<number>) => setSpeed(n)}
             />
         </Paper>

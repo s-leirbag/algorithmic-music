@@ -52,8 +52,10 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [progChords, setProgChords] = useState<string[]>(progs.get(progName) as string[]);
   const [chordInd, setChordInd] = useState<number>(0);
   const [mode, setMode] = useState<string>(name === 'Melody' ? 'step' : 'instant');
+  const [volume, setVolume] = useState<number>(50);
 
   // Write notes
+  // And if on instant mode, play
   useEffect(() => {
     const rawNotes: Note[][] = Array.from({ length: nCols }).map(() => []);
     const now = Tone.now()
@@ -110,15 +112,24 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     }
   }, [grid, speed]);
 
+  useEffect(() => {
+    const SYNTH_MIN = -12;
+    const SYNTH_MAX = 5;
+    synth.volume.value = SYNTH_MIN + (SYNTH_MAX - SYNTH_MIN) * volume / 100;
+  }, [volume])
+
   // play given notes
   const playNotes = (notes: Note[]) => {
+    if (volume === 0) return;
+
     notes.forEach((note) => {
       if (name === 'Melody') {
         synth.triggerAttackRelease(note.note, note.length);
       }
       else {
         const sound = new Howl({
-          src: [note.note]
+          src: [note.note],
+          volume: volume / 100,
         })
         setTimeout(() => {
           sound.play();
@@ -163,9 +174,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
       setColToPlay(0);
     }
 
-    return () => {
-      clearInterval(interval);
-    }
+    return () => clearInterval(interval);
   }, [status, speed]);
 
   // Toggle a cell
@@ -237,6 +246,13 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
         min={1}
         max={32}
         onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
+      />
+      <InputSlider
+        name='Volume'
+        value={volume}
+        min={0}
+        max={100}
+        onChange={(n: number) => setVolume(n)}
       />
       {name === 'Melody' ? (
         <>

@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
-import { InputSlider } from './Input';
+import { InputSlider, NumberInput } from './Input';
 
 import { gridToString, presets, presetNames, resizeGrid, getNextGrid, diagGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
@@ -55,7 +55,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [chordInd, setChordInd] = useState<number>(0);
   const [mode, setMode] = useState<string>(name === 'Melody' ? 'step' : 'instant');
   const [volume, setVolume] = useState<number>(50);
-
+  const [preset, setPreset] = useState<string>('none');
 
   // Write notes
   // And if on instant mode, play
@@ -212,6 +212,22 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
       })
     );
     setGrid(newGrid);
+    setPreset('none');
+  }
+
+  const handleClearGrid = () => {
+    setGrid(clearGrid(nRows, nCols));
+    setPreset('none');
+  }
+
+  const handleFillGrid = () => {
+    setGrid(fillGrid(nRows, nCols));
+    setPreset('none');
+  }
+
+  const handleRandGrid = () => {
+    setGrid(randGrid(nRows, nCols, 0.3));
+    setPreset('none');
   }
 
   return (
@@ -228,85 +244,101 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           ))}
         </tbody>
       </table>
-      <ButtonGroup variant="contained" aria-label="Basic button group" sx={{marginX: 'auto'}}>
-        <Button variant='outlined' onClick={() => setGrid(clearGrid(nRows, nCols))}>Clear</Button>
-        <Button variant='outlined' onClick={() => setGrid(fillGrid(nRows, nCols))}>Fill</Button>
-        <Button variant='outlined' onClick={() => setGrid(randGrid(nRows, nCols, 0.3))}>Randomize</Button>
-      </ButtonGroup>
-      <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-        <Typography variant='body1' component='p' align='center' >Use Preset: </Typography>
-        <Select
-          defaultValue={'Preset'}
-          onChange={(e) => {
-            const res = presets.get(e.target.value)?.call({}, nRows, nCols);
-            if (res) {
-              if (res.newNCols) {
-                setNCols(res.newNCols);
-              }
-              if (res.newNRows) {
-                setNRows(res.newNRows);
-              }
-              setGrid(res.grid);
-            }
-          }}
-        >
-          <MenuItem value='Preset' disabled>
-            <em>None</em>
-          </MenuItem>
-          {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-        </Select>
-      </Stack>
-      <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button>
-      <InputSlider
-        name='Rows'
-        value={nRows}
-        min={1}
-        max={32}
-        onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n);}}
-      />
-      <InputSlider
-        name='Columns'
-        value={nCols}
-        min={1}
-        max={32}
-        onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
-      />
-      <InputSlider
-        name='Volume'
-        value={volume}
-        min={0}
-        max={100}
-        onChange={(n: number) => setVolume(n)}
-      />
-      <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-        <Typography variant='body1' component='p' align='center' >Mode: </Typography>
-        <ToggleButtonGroup
-          value={mode}
-          exclusive
-          onChange={(e, v) => setMode(v)}
-        >
-          <ToggleButton value="step">
-            Scan
-          </ToggleButton>
-          <ToggleButton value="instant">
-            Rapid
-          </ToggleButton>
-        </ToggleButtonGroup> 
-      </Stack>    
-      {name === 'Melody' ? (
-        <>
-          <Typography variant='body1' component='p' width='100%' align='center' >Chord: {progChords[chordInd]}</Typography>
-          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-            <Typography variant='body1' component='p' align='center' >Progression: </Typography>
+      <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+          <Button variant='outlined' onClick={handleClearGrid}>Clear</Button>
+          {/* <Button variant='outlined' onClick={handleFillGrid}>Fill</Button> */}
+          <Button variant='outlined' onClick={handleRandGrid}>Random</Button>
+          <Stack direction='row' spacing={1} alignItems="center" justifyContent='center'>
             <Select
-              value={progName}
-              onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
+              value={preset}
+              onChange={(e) => {
+                const res = presets.get(e.target.value)?.call({}, nRows, nCols);
+                if (res) {
+                  if (res.newNCols) {
+                    setNCols(res.newNCols);
+                  }
+                  if (res.newNRows) {
+                    setNRows(res.newNRows);
+                  }
+                  setGrid(res.grid);
+                }
+                setPreset(e.target.value);
+              }}
+              sx={{
+                '& .MuiSelect-select': {
+                  paddingX: 2,
+                  paddingY: 1,
+                },
+              }}
             >
-              {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              <MenuItem value='none' disabled>
+                <em>Preset</em>
+              </MenuItem>
+              {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
             </Select>
           </Stack>
-        </>
-      ) : ''}
+        </Stack>
+        
+        {/* <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button> */}
+        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+          <NumberInput
+            name='Rows'
+            value={nRows}
+            min={1}
+            max={32}
+            onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n)}}
+          />
+          <NumberInput
+            name='Columns'
+            value={nCols}
+            min={1}
+            max={32}
+            onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
+          />
+        </Stack>
+      </Paper>
+      <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <InputSlider
+          name='Volume'
+          value={volume}
+          min={0}
+          max={100}
+          onChange={(n: number) => setVolume(n)}
+          width
+        />
+        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+          <Typography variant='h6' component='p' align='center' >Mode </Typography>
+          <ToggleButtonGroup
+            value={mode}
+            exclusive
+            onChange={(e, v) => setMode(v)}
+          >
+            <ToggleButton value="step">
+              Scan
+            </ToggleButton>
+            <ToggleButton value="instant">
+              Rapid
+            </ToggleButton>
+          </ToggleButtonGroup> 
+        </Stack>    
+        {name === 'Melody' ? (
+          <>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
+                <Typography variant='h6' component='p' align='center' >Progression </Typography>
+                <Typography variant='body2' component='p' width='100%' >(Current Chord: {progChords[chordInd]})</Typography>
+              </Stack>
+              <Select
+                value={progName}
+                onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
+              >
+                {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+            </Stack>
+          </>
+        ) : ''}
+      </Paper>
     </Paper>
   );
 }

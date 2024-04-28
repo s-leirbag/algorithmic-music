@@ -171,3 +171,55 @@ export function InputSlider(props) {
     </Box>
   );
 }
+
+/**
+ * Input with label and number input box
+ */
+export function NumberInput(props) {
+  const [value, setValue] = React.useState(props.value);
+  if (props.value !== value) {
+    setValue(props.value);
+  }
+
+  const handleInputChange = (event) => {
+    setValue(event.target.value === '' ? '' : Number(event.target.value));
+    if (event.target.value !== '')
+      props.onChange(Number(event.target.value));
+  };
+
+  const handleBlur = () => {
+    if (value < props.min) {
+      setValue(props.min);
+      props.onChange(props.min);
+    } else if (value > props.max) {
+      setValue(props.max);
+      props.onChange(props.max);
+    }
+  };
+
+  return (
+    <Box sx={{width: props.width || 'auto'}}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item>
+          <Typography id="input-slider" variant='h6' gutterBottom>{props.name}</Typography>
+        </Grid>
+        <Grid item>
+          <Input
+            value={value}
+            size="small"
+            onInput={handleInputChange}
+            onBlur={handleBlur}
+            inputProps={{
+              step: props.step,
+              min: props.min,
+              max: props.max,
+              type: 'number',
+              'aria-labelledby': 'input-slider',
+            }}
+            disabled={props.disabled}
+          />
+        </Grid>
+      </Grid>
+    </Box>
+  );
+}

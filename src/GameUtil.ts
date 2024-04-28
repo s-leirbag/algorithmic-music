@@ -89,6 +89,7 @@ const presetsRaw = new Map([
   [
     'toad',
     `
+      0000
       0111
       1110
     `
@@ -100,15 +101,6 @@ const presetsRaw = new Map([
       1100
       0011
       0011
-    `
-  ],
-  [
-    'boi',
-    `
-      1100
-      0110
-      0110
-      1100
     `
   ],
   [
@@ -292,10 +284,15 @@ export const presets = new Map<string, (nRows: number, nCols: number) => { grid:
 presetsArrays.forEach((grid, name) => {
   presets.set(name, (nRows: number, nCols: number) => {
     return {
-      grid: resizeGrid(grid, nRows, nCols, true),
-      newNRows: grid.length > nRows ? grid.length : undefined,
-      newNCols: grid[0].length > nCols ? grid[0].length : undefined,
+      grid: grid,
+      newNRows: grid.length,
+      newNCols: grid[0].length,
     }
+    // return {
+    //   grid: resizeGrid(grid, nRows, nCols, true),
+    //   newNRows: grid.length > nRows ? grid.length : undefined,
+    //   newNCols: grid[0].length > nCols ? grid[0].length : undefined,
+    // }
   })
 })
 

@@ -91,6 +91,20 @@ function App() {
           </Typography>
         </Paper>
 
+        <Paper sx={{ display: 'flex' }} elevation={4}>
+            {playPauseButton}
+            {stopButton}
+            <InputSlider
+              name='Speed'
+              value={speed}
+              step={0.25}
+              min={0.25}
+              max={10}
+              width='300px'
+              onChange={(n: SetStateAction<number>) => setSpeed(n)}
+            />
+        </Paper>
+
         <Stack direction='row' spacing={2}>
           <Grid
             name='Melody'
@@ -105,20 +119,6 @@ function App() {
             status={status}
           />
         </Stack>
-
-        <Paper sx={{ display: 'flex' }} elevation={4}>
-            {playPauseButton}
-            {stopButton}
-            <InputSlider
-              name='SPEED'
-              value={speed}
-              step={0.25}
-              min={0.25}
-              max={10}
-              width='300px'
-              onChange={(n: SetStateAction<number>) => setSpeed(n)}
-            />
-        </Paper>
       </div>
     </ThemeProvider>
   );

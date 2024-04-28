@@ -175,7 +175,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     }
 
     return () => clearInterval(interval);
-  }, [status, speed]);
+  }, [status, speed, nCols]);
 
   // Toggle a cell
   const handleToggle = (i: number, j: number) => {

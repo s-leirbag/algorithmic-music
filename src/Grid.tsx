@@ -202,6 +202,10 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
         }, 60 / speed * 1000 / 2);
       } else {
         // mode === 'instant'
+
+        // Play initial grid for instant mode, don't wait until grid changes
+        playNotes(notesToPlay[0]);
+
         interval = setInterval(() => {
           setGrid((g) => getNextGrid(g));
         }, 60 / speed * 1000 / 2);

@@ -304,6 +304,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
               </Stack>
             </Stack>
             <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' gutterBottom>Size</Typography>
               <NumberInput
                 name='Rows'
                 value={nRows}
@@ -311,6 +312,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
                 max={32}
                 onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n)}}
               />
+              <Typography variant='h6' gutterBottom>x</Typography>
               <NumberInput
                 name='Columns'
                 value={nCols}

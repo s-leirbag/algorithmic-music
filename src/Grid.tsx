@@ -17,7 +17,7 @@ import { Howl } from 'howler';
 import { InputSlider, NumberInput } from './Input';
 
 import { gridToString, presets, presetNames, resizeGrid, getNextGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
-import { getChord, progs, progNames, randProgName, DRUMS } from './SoundUtil';
+import { makeScale, chromaticNotes, getProg, progMajNames, progMinNames, randProgName, DRUMS } from './SoundUtil';
 
 const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
@@ -51,12 +51,14 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [grid, setGrid] = useState(randGrid(nRows, nCols));
   const [colToPlay, setColToPlay] = useState(0);
   const [notesToPlay, setNotesToPlay] = useState<Note[][]>([]);
-  const [progName, setProgName] = useState<string>(randProgName());
-  const [progChords, setProgChords] = useState<string[]>(progs.get(progName) as string[]);
+  const [progName, setProgName] = useState<string>(randProgName('major'));
+  const [prog, setProg] = useState(getProg(progName, makeScale('C4', 'major')));
   const [chordInd, setChordInd] = useState<number>(0);
   const [mode, setMode] = useState<string>(name === 'Melody' ? 'step' : 'instant');
   const [volume, setVolume] = useState<number>(defaultVolume || 50);
   const [preset, setPreset] = useState<string>('none');
+  const [root, setRoot] = useState<string>('C4');
+  const [key, setKey] = useState<string>('major');
 
   // Write notes
   // And if on instant mode, play
@@ -71,7 +73,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           let start = null;
           for (let j = 0; j <= row.length; j++) {
             if (start && (j === row.length || !row[j])) {
-              const note = getChord(progChords[chordInd], 'major')[i % 3];
+              const note = prog[chordInd].notes[i % prog[chordInd].notes.length];
               rawNotes[start].push({
                 note: note,
                 time: now + secInterval * j,
@@ -103,7 +105,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
       // mode === 'instant'
       grid.forEach((row, i) => {
         if (row.reduce((acc, b) => acc || b, false)) {
-          const note = getChord(progChords[chordInd], 'major')[i % 3];
+          const note = prog[chordInd].notes[i % prog[chordInd].notes.length];
           const drum = Object.values(DRUMS)[i];
           rawNotes[0].push({
             note: name === 'Melody' ? note : drum,
@@ -129,7 +131,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     if (mode === 'instant') {
       playNotes(uniqueNotes[0]);
     }
-  }, [grid, speed, mode]);
+  }, [grid, speed, mode, prog]);
 
   useEffect(() => {
     const SYNTH_MIN = -12;
@@ -176,7 +178,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
             if (newC === nCols - 1) {
               setTimeout(() => {
                 setGrid((g) => getNextGrid(g));
-                setChordInd((c) => (c + 1) % 3);
+                setChordInd((c) => (c + 1) % prog.length);
               }, defaultInterval / speed / 2);
             }
             return newC;
@@ -189,7 +191,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
         }, defaultInterval / speed);
         
         altInterval = setInterval(() => {
-          setChordInd((c) => (c + 1) % 3);
+          setChordInd((c) => (c + 1) % prog.length);
         }, defaultInterval / speed * nCols);
 
         return () => { clearInterval(interval); clearInterval(altInterval) };
@@ -197,10 +199,11 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     }
     else if (status === 'stop') {
       setColToPlay(0);
+      setChordInd(0);
     }
 
     return () => clearInterval(interval);
-  }, [status, speed, nCols, mode]);
+  }, [status, speed, nCols, mode, prog]);
 
   // Toggle a cell
   const handleToggle = (i: number, j: number) => {
@@ -328,13 +331,48 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
             <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
               <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
                 <Typography variant='h6' component='p' align='center' >Progression </Typography>
-                <Typography variant='body2' component='p' width='100%' >(Current Chord: {progChords[chordInd]})</Typography>
+                <Typography variant='body2' component='p' width='100%' >(Current Chord: {prog[chordInd].root})</Typography>
               </Stack>
               <Select
                 value={progName}
-                onChange={(e) => {setProgName(e.target.value); setProgChords(progs.get(e.target.value) as string[])}}
+                onChange={(e) => {
+                  setChordInd(0);
+                  setProgName(e.target.value);
+                  setProg(getProg(e.target.value, makeScale(root, key)))
+                }}
               >
-                {progNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+                {(key === 'major' ? progMajNames : progMinNames).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+            </Stack>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' component='p' align='center' >Key</Typography>
+              <Select
+                value={root}
+                onChange={(e) => {
+                  setRoot(e.target.value)
+                  setProg(getProg(progName, makeScale(e.target.value, key)))
+                }}
+              >
+                {chromaticNotes.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+              <Select
+                value={key}
+                onChange={(e) => {
+                  const k = e.target.value;
+                  setKey(k)
+                  let newProgName = progName;
+                  if (k === 'major' && !progMajNames.includes(progName)) {
+                    newProgName = progMajNames[0];
+                  }
+                  else if (k === 'minor' && !progMinNames.includes(progName)) {
+                    newProgName = progMinNames[0];
+                  }
+                  setProgName(newProgName);
+                  setProg(getProg(newProgName, makeScale(root, k)));
+                }}
+              >
+                <MenuItem value='major' key='major'>Major</MenuItem>
+                <MenuItem value='minor' key='minor'>Minor</MenuItem>
               </Select>
             </Stack>
           </>

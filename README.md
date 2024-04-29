@@ -6,11 +6,9 @@ Map Conway's Game of Life to music!
 
 ## To-do
 
-- Octave
 - Instrument
 - Add parts: bass, melody, chords, percussion
 - Styling
-- Minor key progressions
 - Add grids as you want
 - Move speed to bpm
 - ...

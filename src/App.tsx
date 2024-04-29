@@ -63,7 +63,7 @@ const defaultInterval = 1000;
 function App() {
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
-  const [speed, setSpeed] = useState(3);
+  const [speed, setSpeed] = useState(5);
 
   const playPauseButton = status === 'play' ? (
     <Button variant='outlined' onClick={() => setStatus('pause')}><PauseCircle /></Button>

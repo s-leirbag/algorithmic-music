@@ -130,6 +130,18 @@ const presetsRaw = new Map([
     `
   ],
   [
+    'blinker + loop',
+    `
+      010000
+      010000
+      010000
+      000000
+      000110
+      001001
+      000110
+    `
+  ],
+  [
     'almosymmetric',
     `
     000010000

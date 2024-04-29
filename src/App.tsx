@@ -66,12 +66,12 @@ function App() {
   const [speed, setSpeed] = useState(5);
 
   const playPauseButton = status === 'play' ? (
-    <Button size='large' variant='outlined' onClick={() => setStatus('pause')}>
+    <Button size='large' variant='contained' onClick={() => setStatus('pause')}>
       <PauseCircle fontSize='large' sx={{mr: 1}}/>
       <Typography variant='h5' component='h4' >Pause</Typography>
     </Button>
   ) : (
-    <Button size='large' variant='outlined' onClick={() => setStatus('play')}>
+    <Button size='large' variant='contained' onClick={() => setStatus('play')}>
       <PlayCircle fontSize='large' sx={{mr: 1}}/>
       <Typography variant='h5' component='h4' >Play</Typography>
     </Button>
@@ -94,31 +94,27 @@ function App() {
     <CssBaseline />
       <div className="App">
         <Paper sx={{ display: 'flex', alignItems: 'end' }} elevation={4}>
-          <Typography variant='h3' component='h4' sx={{ mr: 4 }} >Musical Game of Life</Typography>
-          <Typography variant='body1' component='p' sx={{ mb: 1, mr: 1 }}>
-            Make some tunes! -Gabriel Shiu
+          <Typography variant='h3' component='h4' sx={{ mr: 'auto' }} >
+            Musical Game of Life
+            <Typography variant='body1' component='p' sx={{ mr: 2 }}>
+              {/* Make some tunes! -Gabriel Shiu <br/> */}
+              <Link href='https://github.com/s-leirbag/algorithmic-music/' target="_blank" rel="noopener">Visit GitHub repo</Link>
+            </Typography>
           </Typography>
-          <Typography variant='body1' component='p' sx={{ mb: 1, ml: 'auto', mr: 2 }}>
-            GitHub repo: <Link href='https://github.com/s-leirbag/algorithmic-music/' target="_blank" rel="noopener">click</Link>
-          </Typography>
+          <InputSlider
+            name='Speed'
+            value={speed}
+            step={0.25}
+            min={0.25}
+            max={10}
+            width='300px'
+            onChange={(n: SetStateAction<number>) => setSpeed(n)}
+          />
+          {playPauseButton}
+          {stopButton}
         </Paper>
 
-        <Stack direction='row' spacing={2}>
-          <Paper sx={{ position: 'absolute', bottom: '16px', right: '16px', display: 'flex', flexDirection: 'column' }} elevation={4}>
-            <Stack direction='row' spacing={2}>
-              {playPauseButton}
-              {stopButton}
-            </Stack>
-              <InputSlider
-                name='Speed'
-                value={speed}
-                step={0.25}
-                min={0.25}
-                max={10}
-                width='300px'
-                onChange={(n: SetStateAction<number>) => setSpeed(n)}
-              />
-          </Paper>
+        <Stack direction='row' spacing={2} sx={{ height: 'calc(100vh - 48px - 112px)' }}>
           <Grid
             name='Melody'
             defaultInterval={defaultInterval}

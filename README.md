@@ -6,9 +6,8 @@ Map Conway's Game of Life to music!
 
 ## To-do
 
-- Styling
-- Add grids as you want
-- Move speed to bpm
+- More grids
+- Speed as bpm
 - ...
 
 ## Milestones

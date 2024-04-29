@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import MenuItem from '@mui/material/MenuItem';
@@ -247,157 +248,161 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   }
 
   return (
-    <Paper sx={{ display: 'flex', flexDirection: 'column' }} elevation={4}>
-      <Typography variant='h5' component='h5' width='100%' align='center' >{name}</Typography>
-      <table>
-        <tbody>
-          {Array.from({ length: nRows }).map((_, i) => (
-            <tr key={i}>
-              {Array.from({ length: nCols }).map((_, j) => (
-                <Cell key={j} active={grid[i][j]} playing={mode === 'step' ? j === colToPlay : grid[i][j]} onClick={() => {handleToggle(i, j)}} />
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-          <Button variant='outlined' onClick={handleClearGrid}>Clear</Button>
-          {/* <Button variant='outlined' onClick={handleFillGrid}>Fill</Button> */}
-          <Button variant='outlined' onClick={handleRandGrid}>Random</Button>
-          <Stack direction='row' spacing={1} alignItems="center" justifyContent='center'>
-            <Select
-              value={preset}
-              onChange={(e) => {
-                const res = presets.get(e.target.value)?.call({}, nRows, nCols);
-                if (res) {
-                  if (res.newNCols) {
-                    setNCols(res.newNCols);
-                  }
-                  if (res.newNRows) {
-                    setNRows(res.newNRows);
-                  }
-                  setGrid(res.grid);
-                }
-                setPreset(e.target.value);
-              }}
-              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
-            >
-              <MenuItem value='none' disabled>
-                <em>Preset</em>
-              </MenuItem>
-              {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-            </Select>
-          </Stack>
-        </Stack>
-        
-        {/* <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button> */}
-        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-          <NumberInput
-            name='Rows'
-            value={nRows}
-            min={1}
-            max={32}
-            onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n)}}
-          />
-          <NumberInput
-            name='Columns'
-            value={nCols}
-            min={1}
-            max={32}
-            onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
-          />
-        </Stack>
-      </Paper>
-      <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-        <InputSlider
-          name='Volume'
-          value={volume}
-          min={0}
-          max={100}
-          onChange={(n: number) => setVolume(n)}
-          width
-        />
-        <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-          <Typography variant='h6' component='p' align='center' >Mode</Typography>
-          <ToggleButtonGroup
-            value={mode}
-            exclusive
-            onChange={(e, v) => setMode(v)}
-          >
-            <ToggleButton value="step">
-              Scan
-            </ToggleButton>
-            <ToggleButton value="instant">
-              Rapid
-            </ToggleButton>
-          </ToggleButtonGroup> 
-        </Stack>    
-      </Paper>
-      {name === 'Melody' ? (
-        <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-            <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
-              <Typography variant='h6' component='p' align='center' >Progression</Typography>
-              <Typography variant='body2' component='p' width='100%' >(Current Chord: {prog[chordInd].root})</Typography>
+    <Paper elevation={4} sx={{ gap: 2, display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <Typography variant='h4' component='h4' width='100%' align='center' >{name}</Typography>
+      <Box component='div' sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%', overflow: 'auto' }}>
+        <table>
+          <tbody>
+            {Array.from({ length: nRows }).map((_, i) => (
+              <tr key={i}>
+                {Array.from({ length: nCols }).map((_, j) => (
+                  <Cell key={j} active={grid[i][j]} playing={mode === 'step' ? j === colToPlay : grid[i][j]} onClick={() => {handleToggle(i, j)}} />
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+          <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Button variant='outlined' onClick={handleClearGrid}>Clear</Button>
+              {/* <Button variant='outlined' onClick={handleFillGrid}>Fill</Button> */}
+              <Button variant='outlined' onClick={handleRandGrid}>Random</Button>
+              <Stack direction='row' spacing={1} alignItems="center" justifyContent='center'>
+                <Select
+                  value={preset}
+                  onChange={(e) => {
+                    const res = presets.get(e.target.value)?.call({}, nRows, nCols);
+                    if (res) {
+                      if (res.newNCols) {
+                        setNCols(res.newNCols);
+                      }
+                      if (res.newNRows) {
+                        setNRows(res.newNRows);
+                      }
+                      setGrid(res.grid);
+                    }
+                    setPreset(e.target.value);
+                  }}
+                  sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                >
+                  <MenuItem value='none' disabled>
+                    <em>Preset</em>
+                  </MenuItem>
+                  {presetNames.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+                </Select>
+              </Stack>
             </Stack>
-            <Select
-              value={progName}
-              onChange={(e) => {
-                setChordInd(0);
-                setProgName(e.target.value);
-                setProg(getProg(e.target.value, makeScale(root, key)))
-              }}
-              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
-            >
-              {(key === 'major' ? progMajNames : progMinNames).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-            </Select>
-          </Stack>
-          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-            <Typography variant='h6' component='p' align='center' >Key</Typography>
-            <Select
-              value={root}
-              onChange={(e) => {
-                setRoot(e.target.value)
-                setProg(getProg(progName, makeScale(e.target.value, key)))
-              }}
-              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
-            >
-              {chromaticNotes.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-            </Select>
-            <Select
-              value={key}
-              onChange={(e) => {
-                const k = e.target.value;
-                setKey(k)
-                let newProgName = progName;
-                if (k === 'major' && !progMajNames.includes(progName)) {
-                  newProgName = progMajNames[0];
-                }
-                else if (k === 'minor' && !progMinNames.includes(progName)) {
-                  newProgName = progMinNames[0];
-                }
-                setProgName(newProgName);
-                setProg(getProg(newProgName, makeScale(root, k)));
-              }}
-              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
-            >
-              <MenuItem value='major' key='major'>Major</MenuItem>
-              <MenuItem value='minor' key='minor'>Minor</MenuItem>
-            </Select>
-          </Stack>
-          <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-            <Typography variant='h6' component='p' align='center' >Instrument</Typography>
-            <Select
-              defaultValue={'Synth'}
-              onChange={(e) => setSynth(synths.get(e.target.value) as Tone.PolySynth)}
-              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
-            >
-              {Array.from(synths.keys()).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
-            </Select>
-          </Stack>
-        </Paper>
-      ) : ''}
+            
+            {/* <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button> */}
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <NumberInput
+                name='Rows'
+                value={nRows}
+                min={1}
+                max={32}
+                onChange={(n: number) => {setGrid(resizeGrid(grid, n, nCols)); setNRows(n)}}
+              />
+              <NumberInput
+                name='Columns'
+                value={nCols}
+                min={1}
+                max={32}
+                onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
+              />
+            </Stack>
+          </Paper>
+          <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+            <InputSlider
+              name='Volume'
+              value={volume}
+              min={0}
+              max={100}
+              onChange={(n: number) => setVolume(n)}
+              width
+            />
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' component='p' align='center' >Mode</Typography>
+              <ToggleButtonGroup
+                value={mode}
+                exclusive
+                onChange={(e, v) => setMode(v)}
+              >
+                <ToggleButton value="step">
+                  Scan
+                </ToggleButton>
+                <ToggleButton value="instant">
+                  Rapid
+                </ToggleButton>
+              </ToggleButtonGroup> 
+            </Stack>    
+          </Paper>
+        </Box> 
+        {name === 'Melody' ? (
+          <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
+                <Typography variant='h6' component='p' align='center' >Progression</Typography>
+                <Typography variant='body2' component='p' width='100%' >(Current Chord: {prog[chordInd].root})</Typography>
+              </Stack>
+              <Select
+                value={progName}
+                onChange={(e) => {
+                  setChordInd(0);
+                  setProgName(e.target.value);
+                  setProg(getProg(e.target.value, makeScale(root, key)))
+                }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+              >
+                {(key === 'major' ? progMajNames : progMinNames).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+            </Stack>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' component='p' align='center' >Key</Typography>
+              <Select
+                value={root}
+                onChange={(e) => {
+                  setRoot(e.target.value)
+                  setProg(getProg(progName, makeScale(e.target.value, key)))
+                }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+              >
+                {chromaticNotes.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+              <Select
+                value={key}
+                onChange={(e) => {
+                  const k = e.target.value;
+                  setKey(k)
+                  let newProgName = progName;
+                  if (k === 'major' && !progMajNames.includes(progName)) {
+                    newProgName = progMajNames[0];
+                  }
+                  else if (k === 'minor' && !progMinNames.includes(progName)) {
+                    newProgName = progMinNames[0];
+                  }
+                  setProgName(newProgName);
+                  setProg(getProg(newProgName, makeScale(root, k)));
+                }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+              >
+                <MenuItem value='major' key='major'>Major</MenuItem>
+                <MenuItem value='minor' key='minor'>Minor</MenuItem>
+              </Select>
+            </Stack>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' component='p' align='center' >Instrument</Typography>
+              <Select
+                defaultValue={'Synth'}
+                onChange={(e) => setSynth(synths.get(e.target.value) as Tone.PolySynth)}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+              >
+                {Array.from(synths.keys()).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
+              </Select>
+            </Stack>
+          </Paper>
+        ) : ''}
+      </Box>
     </Paper>
   );
 }

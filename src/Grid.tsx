@@ -3,7 +3,7 @@ import './App.css';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import ButtonGroup from '@mui/material/ButtonGroup';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Select from '@mui/material/Select';
@@ -12,12 +12,14 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+
 import * as Tone from 'tone';
 import { Howl } from 'howler';
 
 import { InputSlider, NumberInput } from './Input';
 
-import { gridToString, presets, presetNames, resizeGrid, getNextGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
+import { gridToString, presets, presetNames, resizeGrid, getNextGrid, clearGrid, randGrid } from './GameUtil';
 import { makeScale, chromaticNotes, getProg, progMajNames, progMinNames, randProgName, DRUMS } from './SoundUtil';
 
 const synths = new Map([
@@ -55,9 +57,10 @@ interface GridProps {
   speed: number,
   status: string,
   defaultVolume?: number,
+  onUnsyncEdit: () => void,
 }
 
-export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status, defaultVolume }: GridProps) {
+export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status, defaultVolume, onUnsyncEdit }: GridProps) {
   const [nRows, setNRows] = useState(defaultNRows || 5);
   const [nCols, setNCols] = useState(defaultNCols || 8);
   const [grid, setGrid] = useState(randGrid(nRows, nCols));
@@ -141,7 +144,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     }
 
     setNotesToPlay(uniqueNotes);
-    if (mode === 'instant') {
+    if (mode === 'instant' && status === 'play') {
       playNotes(uniqueNotes[0]);
     }
   }, [grid, speed, mode, prog]);
@@ -218,6 +221,13 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     return () => clearInterval(interval);
   }, [status, speed, nCols, mode, prog]);
 
+  // some changes restart the interval and make it out of sync with the other grid
+  useEffect(() => {
+    if (status === 'play') {
+      onUnsyncEdit();
+    }
+  }, [nCols, mode, prog]);
+
   // Toggle a cell
   const handleToggle = (i: number, j: number) => {
     const newGrid = grid.map((row, rowIndex) =>
@@ -237,10 +247,10 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     setPreset('none');
   }
 
-  const handleFillGrid = () => {
-    setGrid(fillGrid(nRows, nCols));
-    setPreset('none');
-  }
+  // const handleFillGrid = () => {
+  //   setGrid(fillGrid(nRows, nCols));
+  //   setPreset('none');
+  // }
 
   const handleRandGrid = () => {
     setGrid(randGrid(nRows, nCols, 0.3));
@@ -249,7 +259,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
 
   return (
     <Paper elevation={4} sx={{ gap: 2, display: 'flex', flexDirection: 'column', width: '100%' }}>
-      <Typography variant='h4' component='h4' width='100%' align='center' >{name}</Typography>
+      <Typography color='white' variant='h4' component='h4' width='100%' align='center' >{name}</Typography>
       <Box component='div' sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%', overflow: 'auto' }}>
         <table>
           <tbody>
@@ -284,7 +294,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                     }
                     setPreset(e.target.value);
                   }}
-                  sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                  sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
                 >
                   <MenuItem value='none' disabled>
                     <em>Preset</em>
@@ -293,8 +303,6 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                 </Select>
               </Stack>
             </Stack>
-            
-            {/* <Button variant='outlined' onClick={() => console.log(gridToString(grid))}>Log Grid</Button> */}
             <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
               <NumberInput
                 name='Rows'
@@ -310,6 +318,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                 max={32}
                 onChange={(n: number) => {setGrid(resizeGrid(grid, nRows, n)); setNCols(n)}}
               />
+              <IconButton color='secondary' onClick={() => console.log(gridToString(grid))}><FileDownloadIcon /></IconButton>
             </Stack>
           </Paper>
           <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
@@ -327,6 +336,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                 value={mode}
                 exclusive
                 onChange={(e, v) => setMode(v)}
+                color='primary'
               >
                 <ToggleButton value="step">
                   Scan
@@ -352,7 +362,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setProgName(e.target.value);
                   setProg(getProg(e.target.value, makeScale(root, key)))
                 }}
-                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {(key === 'major' ? progMajNames : progMinNames).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>
@@ -365,7 +375,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setRoot(e.target.value)
                   setProg(getProg(progName, makeScale(e.target.value, key)))
                 }}
-                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {chromaticNotes.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>
@@ -384,7 +394,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setProgName(newProgName);
                   setProg(getProg(newProgName, makeScale(root, k)));
                 }}
-                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 <MenuItem value='major' key='major'>Major</MenuItem>
                 <MenuItem value='minor' key='minor'>Minor</MenuItem>
@@ -395,7 +405,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
               <Select
                 defaultValue={'Synth'}
                 onChange={(e) => setSynth(synths.get(e.target.value) as Tone.PolySynth)}
-                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+                sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {Array.from(synths.keys()).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>

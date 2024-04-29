@@ -45,8 +45,8 @@ function noteNameToMIDI(noteName: string)  {
     let MIDInumber = -1; // default if not found
     // check both arrays for the noteName
     for(i=0; i < MIDI_SHARP_NAMES.length; i++) {
-        if( noteName == MIDI_SHARP_NAMES[i] ||
-                noteName == MIDI_FLAT_NAMES[i] ) {
+        if( noteName === MIDI_SHARP_NAMES[i] ||
+                noteName === MIDI_FLAT_NAMES[i] ) {
             MIDInumber = i;  // found it
         }
     }

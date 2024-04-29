@@ -22,8 +22,8 @@ const theme = createTheme({
       dark: '#04588C',
     },
     text: {
-      primary: '#79F2E6',
-      secondary: '#9c9c9c',
+      // primary: '#79F2E6',
+      // secondary: '#9c9c9c',
     },
   },
   components: {
@@ -89,16 +89,21 @@ function App() {
     </Button>
   );
 
+  const onUnsyncEdit = () => {
+    setStatus('stop');
+    setTimeout(() => setStatus('play'), 25);
+  };
+
   return (
     <ThemeProvider theme={theme}>
     <CssBaseline />
       <div className="App">
         <Paper sx={{ display: 'flex', alignItems: 'end' }} elevation={4}>
-          <Typography variant='h3' component='h4' sx={{ mr: 'auto' }} >
+          <Typography color='white' variant='h3' component='h4' sx={{ mr: 'auto' }} >
             Musical Game of Life
             <Typography variant='body1' component='p' sx={{ mr: 2 }}>
               {/* Make some tunes! -Gabriel Shiu <br/> */}
-              <Link href='https://github.com/s-leirbag/algorithmic-music/' target="_blank" rel="noopener">Visit GitHub repo</Link>
+              <Link color='secondary' href='https://github.com/s-leirbag/algorithmic-music/' target="_blank" rel="noopener">GitHub repo</Link>
             </Typography>
           </Typography>
           <InputSlider
@@ -117,15 +122,11 @@ function App() {
         <Stack direction='row' spacing={2} sx={{ height: 'calc(100vh - 48px - 112px)' }}>
           <Grid
             name='Melody'
-            defaultInterval={defaultInterval}
-            speed={speed}
-            status={status}
+            {...{defaultInterval, speed, status, onUnsyncEdit}}
           />
           <Grid
             name='Drums'
-            defaultInterval={defaultInterval}
-            speed={speed}
-            status={status}
+            {...{defaultInterval, speed, status, onUnsyncEdit}}
             defaultVolume={25}
           />
         </Stack>

@@ -1,15 +1,15 @@
 # Musical Game of Life
 
+Map Conway's Game of Life to music!
+
 ## https://algorithmic-music.vercel.app/
 
-Map Conway's Game of Life to music!
+![Thumbnail](thumb.png)
 
 ## To-do
 
 - More grids
 - ...
-
-## Milestones
 
 ## Credits
 

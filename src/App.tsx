@@ -125,7 +125,7 @@ function App() {
           <Grid
             name='Drums'
             {...{speed, status, onUnsyncEdit}}
-            defaultVolume={25}
+            defaultVolume={15}
           />
         </Stack>
       </div>

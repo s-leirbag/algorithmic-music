@@ -86,7 +86,7 @@ const makeChromScale = (octave: number) => chromaticScale.map((note) => note + o
 export const chromaticNotes = makeChromScale(3).concat(makeChromScale(4));
 
 // Function to get the notes for a chord based on its root note
-export function getChord(root: string, scale: string[]) {
+export function getChord(root: string, scale: string[], extra: number = 0) {
     const rootIndex = scale.indexOf(root);
     if (rootIndex === -1) {
         console.error("Root note not found in the scale!");
@@ -97,7 +97,12 @@ export function getChord(root: string, scale: string[]) {
     notes.push(scale[rootIndex]);
     notes.push(scale[(rootIndex + 2) % scale.length]);
     notes.push(scale[(rootIndex + 4) % scale.length]);
-    // notes.push(scale[(rootIndex + 6) % scale.length]);
+
+    const extraNotes = [1, 3, 5, 6].sort((a, b) => 0.5 - Math.random());
+    for (let i = 0; i < extra; i++) {
+        notes.push(scale[(rootIndex + (extraNotes.pop() || 0)) % scale.length]);
+    }
+    
     return notes;
 }
 

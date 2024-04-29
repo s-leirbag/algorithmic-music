@@ -60,7 +60,7 @@ interface GridProps {
 }
 
 export default function Grid({ name, defaultNRows, defaultNCols, speed, status, defaultVolume, onUnsyncEdit }: GridProps) {
-  const [nRows, setNRows] = useState(defaultNRows || 5);
+  const [nRows, setNRows] = useState(defaultNRows || 8);
   const [nCols, setNCols] = useState(defaultNCols || 8);
   const [grid, setGrid] = useState(randGrid(nRows, nCols));
   const [colToPlay, setColToPlay] = useState(0);
@@ -352,7 +352,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
         </Box> 
         {name === 'Melody' ? (
           <Paper variant='outlined' sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+            <Stack direction='row' spacing={2} alignItems="flex-start" justifyContent='center'>
               <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
                 <Typography variant='h6' component='p' align='center' >Progression</Typography>
                 <Typography variant='body2' component='p' width='100%' >(Current Chord: {prog[chordInd].root})</Typography>

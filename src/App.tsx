@@ -66,15 +66,27 @@ function App() {
   const [speed, setSpeed] = useState(5);
 
   const playPauseButton = status === 'play' ? (
-    <Button variant='outlined' onClick={() => setStatus('pause')}><PauseCircle /></Button>
+    <Button size='large' variant='outlined' onClick={() => setStatus('pause')}>
+      <PauseCircle fontSize='large' sx={{mr: 1}}/>
+      <Typography variant='h5' component='h4' >Pause</Typography>
+    </Button>
   ) : (
-    <Button variant='outlined' onClick={() => setStatus('play')}><PlayCircle /></Button>
+    <Button size='large' variant='outlined' onClick={() => setStatus('play')}>
+      <PlayCircle fontSize='large' sx={{mr: 1}}/>
+      <Typography variant='h5' component='h4' >Play</Typography>
+    </Button>
   );
 
   const stopButton = status === 'play' ? (
-    <Button variant='outlined' onClick={() => setStatus('stop')}><StopCircle /></Button>
+    <Button size='large' variant='outlined' onClick={() => setStatus('stop')}>
+      <StopCircle fontSize='large' sx={{mr: 1}}/>
+      <Typography variant='h5' component='h4' >Stop</Typography>
+    </Button>
   ) : (
-    <Button variant='outlined' onClick={() => setStatus('stop')}><ReplayCircleFilled /></Button>
+    <Button size='large' variant='outlined' onClick={() => setStatus('stop')}>
+      <ReplayCircleFilled fontSize='large' sx={{mr: 1}}/>
+      <Typography variant='h5' component='h4' >Reset</Typography>
+    </Button>
   );
 
   return (
@@ -91,21 +103,22 @@ function App() {
           </Typography>
         </Paper>
 
-        <Paper sx={{ display: 'flex' }} elevation={4}>
-            {playPauseButton}
-            {stopButton}
-            <InputSlider
-              name='Speed'
-              value={speed}
-              step={0.25}
-              min={0.25}
-              max={10}
-              width='300px'
-              onChange={(n: SetStateAction<number>) => setSpeed(n)}
-            />
-        </Paper>
-
         <Stack direction='row' spacing={2}>
+          <Paper sx={{ position: 'absolute', bottom: '16px', right: '16px', display: 'flex', flexDirection: 'column' }} elevation={4}>
+            <Stack direction='row' spacing={2}>
+              {playPauseButton}
+              {stopButton}
+            </Stack>
+              <InputSlider
+                name='Speed'
+                value={speed}
+                step={0.25}
+                min={0.25}
+                max={10}
+                width='300px'
+                onChange={(n: SetStateAction<number>) => setSpeed(n)}
+              />
+          </Paper>
           <Grid
             name='Melody'
             defaultInterval={defaultInterval}

@@ -53,14 +53,13 @@ interface GridProps {
   name: string,
   defaultNRows?: number,
   defaultNCols?: number,
-  defaultInterval: number,
   speed: number,
   status: string,
   defaultVolume?: number,
   onUnsyncEdit: () => void,
 }
 
-export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval, speed, status, defaultVolume, onUnsyncEdit }: GridProps) {
+export default function Grid({ name, defaultNRows, defaultNCols, speed, status, defaultVolume, onUnsyncEdit }: GridProps) {
   const [nRows, setNRows] = useState(defaultNRows || 5);
   const [nCols, setNCols] = useState(defaultNCols || 8);
   const [grid, setGrid] = useState(randGrid(nRows, nCols));
@@ -81,14 +80,14 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   useEffect(() => {
     const rawNotes: Note[][] = Array.from({ length: nCols }).map(() => []);
     const now = Tone.now()
-    const secInterval = defaultInterval / speed / 1000;
+    const secInterval = 60 / speed / 2;
 
     if (mode === 'step') {
       if (name === 'Melody') {
         grid.forEach((row, i) => {
           let start = null;
           for (let j = 0; j <= row.length; j++) {
-            if (start && (j === row.length || !row[j])) {
+            if (start !== null && (j === row.length || !row[j])) {
               const note = prog[chordInd].notes[i % prog[chordInd].notes.length];
               rawNotes[start].push({
                 note: note,
@@ -97,7 +96,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
               });
               start = null;
             }
-            else if (!start && row[j]) {
+            else if (start === null && row[j]) {
               start = j;
             }
           }
@@ -195,20 +194,21 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
               setTimeout(() => {
                 setGrid((g) => getNextGrid(g));
                 setChordInd((c) => (c + 1) % prog.length);
-              }, defaultInterval / speed / 2);
+              }, 
+              60 / speed * 1000 / 2 / 2);
             }
             return newC;
           });
-        }, defaultInterval / speed);
+        }, 60 / speed * 1000 / 2);
       } else {
         // mode === 'instant'
         interval = setInterval(() => {
           setGrid((g) => getNextGrid(g));
-        }, defaultInterval / speed);
+        }, 60 / speed * 1000 / 2);
         
         altInterval = setInterval(() => {
           setChordInd((c) => (c + 1) % prog.length);
-        }, defaultInterval / speed * nCols);
+        }, 60 / speed * 1000 / 2 * nCols);
 
         return () => { clearInterval(interval); clearInterval(altInterval) };
       }

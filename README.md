@@ -7,7 +7,6 @@ Map Conway's Game of Life to music!
 ## To-do
 
 - More grids
-- Speed as bpm
 - ...
 
 ## Milestones

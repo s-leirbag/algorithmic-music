@@ -58,12 +58,10 @@ const theme = createTheme({
 });
 
 
-const defaultInterval = 1000;
-
 function App() {
   // status play, pause, stop
   const [status, setStatus] = useState('stop');
-  const [speed, setSpeed] = useState(5);
+  const [speed, setSpeed] = useState(90);
 
   const playPauseButton = status === 'play' ? (
     <Button size='large' variant='contained' onClick={() => setStatus('pause')}>
@@ -107,11 +105,11 @@ function App() {
             </Typography>
           </Typography>
           <InputSlider
-            name='Speed'
+            name='BPM'
             value={speed}
-            step={0.25}
-            min={0.25}
-            max={10}
+            step={10}
+            min={40}
+            max={200}
             width='300px'
             onChange={(n: SetStateAction<number>) => setSpeed(n)}
           />
@@ -122,11 +120,11 @@ function App() {
         <Stack direction='row' spacing={2} sx={{ height: 'calc(100vh - 48px - 112px)' }}>
           <Grid
             name='Melody'
-            {...{defaultInterval, speed, status, onUnsyncEdit}}
+            {...{speed, status, onUnsyncEdit}}
           />
           <Grid
             name='Drums'
-            {...{defaultInterval, speed, status, onUnsyncEdit}}
+            {...{speed, status, onUnsyncEdit}}
             defaultVolume={25}
           />
         </Stack>

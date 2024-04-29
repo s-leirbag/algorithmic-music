@@ -19,7 +19,18 @@ import { InputSlider, NumberInput } from './Input';
 import { gridToString, presets, presetNames, resizeGrid, getNextGrid, clearGrid, fillGrid, randGrid } from './GameUtil';
 import { makeScale, chromaticNotes, getProg, progMajNames, progMinNames, randProgName, DRUMS } from './SoundUtil';
 
-const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+const synths = new Map([
+  ["AMSynth", new Tone.PolySynth(Tone.AMSynth).toDestination()],
+  // ["DuoSynth", new Tone.PolySynth(Tone.DuoSynth).toDestination()],
+  ["FMSynth", new Tone.PolySynth(Tone.FMSynth).toDestination()],
+  ["MembraneSynth", new Tone.PolySynth(Tone.MembraneSynth).toDestination()],
+  // ["MetalSynth", new Tone.PolySynth(Tone.MetalSynth).toDestination()],
+  ["MonoSynth", new Tone.PolySynth(Tone.MonoSynth).toDestination()],
+  // ["NoiseSynth", new Tone.PolySynth(Tone.NoiseSynth).toDestination()],
+  // ["PluckSynth", new Tone.PolySynth(Tone.PluckSynth).toDestination()],
+  // ["Sampler", new Tone.PolySynth(Tone.Sampler).toDestination()],
+  ["Synth", new Tone.PolySynth(Tone.Synth).toDestination()]
+]);
 
 type Note = {
   note: string;
@@ -59,6 +70,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
   const [preset, setPreset] = useState<string>('none');
   const [root, setRoot] = useState<string>('C4');
   const [key, setKey] = useState<string>('major');
+  const [synth, setSynth] = useState<Tone.PolySynth>(synths.get('Synth') as Tone.PolySynth);
 
   // Write notes
   // And if on instant mode, play
@@ -137,7 +149,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
     const SYNTH_MIN = -12;
     const SYNTH_MAX = 5;
     synth.volume.value = SYNTH_MIN + (SYNTH_MAX - SYNTH_MIN) * volume / 100;
-  }, [volume])
+  }, [synth, volume])
 
   // play given notes
   const playNotes = (notes: Note[]) => {
@@ -269,12 +281,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                 }
                 setPreset(e.target.value);
               }}
-              sx={{
-                '& .MuiSelect-select': {
-                  paddingX: 2,
-                  paddingY: 1,
-                },
-              }}
+              sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
             >
               <MenuItem value='none' disabled>
                 <em>Preset</em>
@@ -312,7 +319,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           width
         />
         <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
-          <Typography variant='h6' component='p' align='center' >Mode </Typography>
+          <Typography variant='h6' component='p' align='center' >Mode</Typography>
           <ToggleButtonGroup
             value={mode}
             exclusive
@@ -330,7 +337,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
           <>
             <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
               <Stack direction='column' spacing={0} alignItems="flex-start" justifyContent='center'>
-                <Typography variant='h6' component='p' align='center' >Progression </Typography>
+                <Typography variant='h6' component='p' align='center' >Progression</Typography>
                 <Typography variant='body2' component='p' width='100%' >(Current Chord: {prog[chordInd].root})</Typography>
               </Stack>
               <Select
@@ -340,6 +347,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setProgName(e.target.value);
                   setProg(getProg(e.target.value, makeScale(root, key)))
                 }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {(key === 'major' ? progMajNames : progMinNames).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>
@@ -352,6 +360,7 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setRoot(e.target.value)
                   setProg(getProg(progName, makeScale(e.target.value, key)))
                 }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {chromaticNotes.map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>
@@ -370,9 +379,20 @@ export default function Grid({ name, defaultNRows, defaultNCols, defaultInterval
                   setProgName(newProgName);
                   setProg(getProg(newProgName, makeScale(root, k)));
                 }}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 <MenuItem value='major' key='major'>Major</MenuItem>
                 <MenuItem value='minor' key='minor'>Minor</MenuItem>
+              </Select>
+            </Stack>
+            <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
+              <Typography variant='h6' component='p' align='center' >Instrument</Typography>
+              <Select
+                defaultValue={'Synth'}
+                onChange={(e) => setSynth(synths.get(e.target.value) as Tone.PolySynth)}
+                sx={{ '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
+              >
+                {Array.from(synths.keys()).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
               </Select>
             </Stack>
           </>

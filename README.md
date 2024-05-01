@@ -22,6 +22,7 @@ Heavily inspired by [Thibault Terrasson](https://youtu.be/iMvsA8fkVvA)
 Heavily inspired by [Thibault Terrasson](https://youtu.be/iMvsA8fkVvA)  
 [Howler.js](https://github.com/goldfire/howler.js/)  
 [Tone.js](https://tonejs.github.io/)  
+[GuitarLand Tone.js tutorial](https://www.guitarland.com/MusicTheoryWithToneJS/PlayMajorScale.html)  
 [Create React App](https://github.com/facebook/create-react-app)  
 [Material UI](https://mui.com/)  
 God

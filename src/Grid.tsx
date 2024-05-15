@@ -34,6 +34,8 @@ const synths = new Map([
   // ["Sampler", new Tone.PolySynth(Tone.Sampler).toDestination()],
   ["Synth", new Tone.PolySynth(Tone.Synth).toDestination()]
 ]);
+const SYNTH_MIN = -12;
+const SYNTH_MAX = 5;
 
 type Note = {
   note: string;
@@ -147,12 +149,6 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
       playNotes(uniqueNotes[0]);
     }
   }, [grid, speed, mode, prog]);
-
-  useEffect(() => {
-    const SYNTH_MIN = -12;
-    const SYNTH_MAX = 5;
-    synth.volume.value = SYNTH_MIN + (SYNTH_MAX - SYNTH_MIN) * volume / 100;
-  }, [synth, volume])
 
   // play given notes
   const playNotes = (notes: Note[]) => {
@@ -333,7 +329,12 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
               value={volume}
               min={0}
               max={100}
-              onChange={(n: number) => setVolume(n)}
+              onChange={(v: number) => {
+                setVolume(v);
+                if (name === 'Melody') {
+                  synth.volume.value = SYNTH_MIN + (SYNTH_MAX - SYNTH_MIN) * v / 100;
+                }
+              }}
               width
             />
             <Stack direction='row' spacing={2} alignItems="center" justifyContent='center'>
@@ -410,7 +411,12 @@ export default function Grid({ name, defaultNRows, defaultNCols, speed, status, 
               <Typography variant='h6' component='p' align='center' >Instrument</Typography>
               <Select
                 defaultValue={'Synth'}
-                onChange={(e) => setSynth(synths.get(e.target.value) as Tone.PolySynth)}
+                onChange={(e) => {
+                  setSynth(synths.get(e.target.value) as Tone.PolySynth);
+                  if (name === 'Melody') {
+                    (synths.get(e.target.value) as Tone.PolySynth).volume.value = SYNTH_MIN + (SYNTH_MAX - SYNTH_MIN) * volume / 100;
+                  }
+                }}
                 sx={{ color: '#79F2E6', '& .MuiSelect-select': { paddingX: 2, paddingY: 1 } }}
               >
                 {Array.from(synths.keys()).map((name) => <MenuItem value={name} key={name}>{name}</MenuItem>)}
